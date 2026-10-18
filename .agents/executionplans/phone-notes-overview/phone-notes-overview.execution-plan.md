@@ -40,9 +40,11 @@ feature also establishes those foundational building blocks:
 - The phone UI consists of a **single Activity with one primary destination: `NotesOverviewScreen`**.
   The previous "ConnectionScreen" (a full-screen button to launch glasses) is **removed**.
 - **Glasses connectivity indicator:** Moved into the **top app bar** on the **right side** as a
-  **single status icon** that reflects connected/disconnected state. There is no separate
-  launch-glasses action icon — the status icon serves that purpose (tapping launches glasses
-  when connected). The old full-screen ConnectionScreen button is removed.
+  **single status icon** that reflects connected/disconnected state. The icon uses the **wifi
+  icon** (`Icons.Filled.Wifi`) when glasses are **connected**, and a **strikethrough wifi icon**
+  (`Icons.Filled.WifiOff`) when **not connected**. There is no separate launch-glasses action
+  icon — the status icon serves that purpose (tapping launches glasses when connected). The old
+  full-screen ConnectionScreen button is removed.
 - **DataStore JSON serialization:** The notes list is serialized to JSON
   (`kotlinx.serialization`) and stored under a single Preference key. Proto DataStore is
   avoided to keep it lightweight.
@@ -50,6 +52,13 @@ feature also establishes those foundational building blocks:
   interaction.
 - **Add Note:** Material 3 `AlertDialog` with topic + text fields (no separate navigation
   destination).
+- **List refresh:** The list refreshes automatically and correctly after adding (and after
+  deleting) a note because it flows directly from the DataStore `data` flow — see the
+  `NotesRepositoryImpl` and ViewModel wiring below. No manual reload is required.
+- **No loading indicator:** Since there are no backend/network requests (all data is local in
+  DataStore), the UI does **not** show a loading spinner or loading state anywhere.
+- **List item dividers:** Note items in the `LazyColumn` are visually separated by
+  `HorizontalDivider` composables between items (Material 3 dividers).
 
 ## Proposed Changes
 
@@ -148,10 +157,13 @@ app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/ui/notesoverv
 ```kotlin
 internal data class NotesOverviewUiState(
     val notes: List<Note> = emptyList(),
-    val isLoading: Boolean = false,
     val error: String? = null
 )
 ```
+> [!NOTE] **No `isLoading` field.** There are no backend/network requests (all data is local in
+> DataStore), so a loading indicator is not needed. The plan intentionally omits any loading
+> state/spinner to keep the screen direct and instant.
+
 Optional: add-note dialog state fields.
 
 #### [NEW] [ui/notesoverview/NotesOverviewViewModel.kt]
@@ -165,9 +177,11 @@ Optional: add-note dialog state fields.
   delegates to `NotesOverviewContent`.
 - `private NotesOverviewContent(uiState, onAddNote, onDeleteNote, ...)` — the actual screen
   UI: Scaffold + `FloatingActionButton`. `private` because it is only used within this file.
-- `private NotesList(list, onDelete)` — `LazyColumn` of `NoteItem`s.
+- `private NotesList(list, onDelete)` — `LazyColumn` of `NoteItem`s with a
+  `HorizontalDivider` between each item.
 - `private NoteItem(note, onDelete)` — card with topic, text, timestamp + Swipe-to-Dismiss
-  (`SwipeToDismissBox`).
+  (`SwipeToDismissBox`). On dismissal, `onDelete` is invoked and the list refreshes automatically
+  via the DataStore flow.
 - `private AddNoteDialog(...)` — Material 3 `AlertDialog` with topic + text `OutlinedTextField`s.
 - **Preview** `@Preview` composable renders `NotesOverviewContent` (not the screen wrapper)
   in **light and dark** mode, since `NotesOverviewContent` has no ViewModel injection.
@@ -198,12 +212,13 @@ MainActivity (single Activity, @AndroidEntryPoint)
 └── NotesOverviewScreen (Scaffold)
     ├── TopAppBar (title "Notes")
     │   └── actions (right side):
-    │       └── Glasses connection status icon (single icon, changes based on connection status)
+    │       └── Glasses connection status icon (icon which changes based on connection status - use the wifi icon for it)
     ├── LazyColumn
-    │   └── NoteItem (Card) [SwipeToDismissBox → delete]
-    │       ├── Topic (titleMedium)
-    │       ├── Text (bodyMedium)
-    │       └── Timestamp (labelSmall)
+    │   ├── NoteItem (Card) [SwipeToDismissBox → delete]
+    │   │   ├── Topic (titleMedium)
+    │   │   ├── Text (bodyMedium)
+    │   │   └── Timestamp (labelSmall)
+    │   └── HorizontalDivider (between each NoteItem)
     ├── Empty state (when no notes)
     ├── FloatingActionButton (Add) → opens AddNoteDialog
     └── AddNoteDialog (AlertDialog: topic + text fields)
@@ -222,20 +237,17 @@ MainActivity (single Activity, @AndroidEntryPoint)
 - Run `./gradlew assembleDebug` and confirm it compiles with no errors (required by AGENTS.md).
 - Run `./gradlew :app:compileDebugKotlin` if needed to isolate Kotlin errors faster.
 
+### Manual Verification (functional requirements)
+- **Swipe-to-delete:** Swipe a note; confirm it is removed from the screen and the list refreshes
+  correctly after deletion (DataStore flow emits the updated list).
+- **Glasses connection icon:** Confirm the top app bar shows the **wifi icon** when connected and
+  the **strikethrough wifi icon** (`WifiOff`) when not connected.
+- **List refresh after add:** Add a note via the FAB/dialog; confirm the new note appears in the
+  list without a manual reload (DataStore flow re-emits).
+- **No loading indicator:** Confirm no loading spinner/state appears at any point during add or
+  delete (local-only data, no backend requests).
+- **Dividers:** Confirm note items are visually separated by `HorizontalDivider`s.
+
 ### Automated Tests
 - **None** required for this feature. The user explicitly stated no plain unit tests are needed
   for `NotesRepositoryImpl`. AGENTS.md: no tests unless explicitly requested.
-
-### Manual Verification
-- Deploy the app to a phone emulator via `deploy` and verify via `ui_state` / `adb_shell_input`:
-  1. Notes list renders (topic, text, timestamp) when notes exist.
-  2. FAB opens the Add dialog; entering topic/text creates a note that appears in the list.
-  3. Swipe-to-Dismiss removes a note; the list updates and persists (re-launch keeps notes,
-     per DataStore).
-  4. Empty state shown when no notes.
-  5. Light & dark mode previews render correctly.
-
-> [!NOTE]
-> Manual verification **can** be performed by an agent using the device tools
-> (`deploy`, `ui_state`, `adb_shell_input`). A successful `assembleDebug` build is the primary
-> gate; manual verification is performed after the build passes.

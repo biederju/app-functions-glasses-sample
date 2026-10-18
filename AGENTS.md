@@ -5,7 +5,7 @@
 * **Core Focus:** Demonstrate App Functions and Compose Glimmer for display glasses through focused use cases (creating notes via assistant voice command, and querying recent or day-specific notes to display on the glasses).
 * **Simplicity Rule:** Keep the implementation lightweight. Do not include local databases, complex persistence, or tests unless explicitly requested.
 * **Persistence Decision:** Notes persistence uses **Preferences DataStore** (key-value), storing the notes list as JSON under a single preference key. No local database (Room) or Proto DataStore should be introduced for note persistence.
-* **Spec-Driven Development:** Before writing any implementation code, always create an execution plan and save it in `.agents/executionplans`.
+* **Spec-Driven Development:** Before writing any implementation code, always create an execution plan package and save it under `.agents/executionplans/<execution-plan-name>/<execution-plan-name>.execution-plan.md`.
 * **Clarification First:** Never start implementing if there are ambiguous requirements or open questions. Always clarify everything first.
 
 ## Tech Stack & Library Versions
@@ -25,9 +25,17 @@
 
 ## Workflow & Execution Process
 1. **Analyze & Clarify:** Read the user prompt. If anything is unclear, ask questions immediately.
-2. **Plan:** Create a step-by-step markdown plan under `.agents/executionplans` outlining files to create or modify. Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, a new Gradle plugin, or a new artifact) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
-3. **Execute:** Implement changes strictly adhering to the architecture, style, and safety rules below.
-4. **Verify & Build:** After implementation, the task is only complete once the project builds successfully without compilation errors. Run `./gradlew assembleDebug` (or equivalent build command) to confirm.
+2. **Plan:**
+   * Create a dedicated sub-directory under `.agents/executionplans/` named after the execution plan (e.g., `phone-notes-overview`), and place the plan file inside it as `<execution-plan-name>.execution-plan.md` (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.execution-plan.md`).
+   * Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, a new Gradle plugin, or a new artifact) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
+3. **Execute & Task Tracking:**
+  * When an execution plan already exists and the prompt instructs you to execute/implement it, **proceed directly to execution** — do NOT create a new execution plan. Only create the corresponding task tracking file (see below) and start implementing.
+  * Create a corresponding task tracking file named `<execution-plan-name>.task.md` inside the exact same sub-directory (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.task.md`) to track progress using markdown checklists.
+  * Implement changes strictly adhering to the architecture, style, and safety rules below. Code can be modified, added, and deleted as needed to fulfill the plan.
+4. **Verify, Optimize & Build:**
+  * Before or immediately after verifying the build, ensure all unused imports are cleaned up (optimized imports) across modified files.
+  * After imports optimization and a successful build, format the code (e.g. IDE formatting) so it adheres to project style.
+  * Run `./gradlew assembleDebug` to confirm the project builds successfully without compilation errors. The task is only complete when the build passes and the code is formatted.
 
 ## Architecture & Design Patterns
 * **Single-Activity Architecture:** Use a single-Activity structure with Navigation 3.
@@ -50,14 +58,17 @@
   * Repositories must end with the `Repository` suffix (e.g., `NotesRepository`).
   * Glimmer UI components must use descriptive suffixes like `Panel`, `Overlay`, or `Screen` (e.g., `NotesOverlay`).
 * **Visibility Modifiers (Strict):** Always restrict access visibility. Only make classes, functions, or properties `public` or `internal` when strictly required. Prefer `private` or package-private scope by default.
+* **Avoid Deprecated APIs:** Always try to avoid using deprecated functions, classes, or annotations. Prefer their modern replacements or seek the latest non-deprecated API.
 * **Self-Documenting Code:** Code must be clear and readable so that comments are unnecessary. Only add comments or KDoc for non-obvious workarounds or complex business logic.
 * **Composable Structure & Previews:**
   * Every screen composable (e.g., `NotesOverviewScreen`) must have a `private` content composable (e.g., `NotesOverviewContent`) that takes only plain parameters (no ViewModel injection) — the preview renders this content composable, not the screen wrapper.
   * All composables used only within a single screen should be `private` in that screen's file.
-  * Reusable composables (used by two or more screens) live in their own files under `ui/components/`, are `internal` or `public`, and must have compose previews in light and dark mode.
+  * Reusable composables (used by two or more screens) live in their own files under `ui/components/`, are `internal` or `public`.
+  * Every composable preview must display **both light and dark mode** via the preview annotation on a single preview composable (e.g., the `@Preview` annotation with `uiMode` / `@PreviewNightMode`, or a multipreview annotation combining light & dark). Do **not** create separate preview composables for each mode.
+  * Previews must always be declared `private`.
 
 ## Anti-Patterns & Forbidden Practices
 * **No Legacy Views:** Do not use XML layouts, ViewBinding, or legacy Fragment APIs. Everything must use Jetpack Compose and Compose Glimmer.
 * **No Business Logic in UI:** Do not implement business logic, heavy calculations, or data processing inside Composable functions or Activities. Always delegate to ViewModels or UseCases.
 * **No Hardcoded Navigation:** Do not trigger screen transitions via raw Intents or direct Activity startups. Always rely on the central Navigation 3 graph.
-* **No Unplanned Code:** Do not write or modify code outside of the approved execution plan in `.agents/executionplans`.
+* **No Unplanned Code:** Do not write or modify code outside of the approved execution plan located in `.agents/executionplans/<execution-plan-name>/<execution-plan-name>.execution-plan.md`.

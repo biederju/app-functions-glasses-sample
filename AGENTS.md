@@ -5,14 +5,15 @@
 * **Core Focus:** Demonstrate App Functions and Compose Glimmer for display glasses through focused use cases (creating notes via assistant voice command, and querying recent or day-specific notes to display on the glasses).
 * **Simplicity Rule:** Keep the implementation lightweight. Do not include local databases, complex persistence, or tests unless explicitly requested.
 * **Persistence Decision:** Notes persistence uses **Preferences DataStore** (key-value), storing the notes list as JSON under a single preference key. No local database (Room) or Proto DataStore should be introduced for note persistence.
-* **Spec-Driven Development:** Before writing any implementation code, always create an execution plan and save it in `./.agents/plans/`.
+* **Spec-Driven Development:** Before writing any implementation code, always create an execution plan and save it in `.agents/executionplans`.
 * **Clarification First:** Never start implementing if there are ambiguous requirements or open questions. Always clarify everything first.
 
 ## Tech Stack & Library Versions
 * **Language & Standards:** Kotlin (latest stable). Strictly follow official Kotlin Coding and Naming Guidelines.
 * **Build Tool:** Gradle (Kotlin DSL / .kts)
-* **UI Frameworks:** Jetpack Compose (phone app), Jetpack Compose Glimmer (display glasses app), Material 3 Expressive
+* **UI Frameworks:** Jetpack Compose (phone app), Jetpack Compose Glimmer (display glasses app), Material 3
 * **Navigation:** Navigation 3
+* **Storage:** DataStore
 * **Dependency Injection:** Hilt
 * **Integration:** Android App Functions / AppSearch
 * **Dependencies:** Always use the latest stable versions of libraries, unless experimental or canary releases are strictly required for XR/Glimmer features.
@@ -24,7 +25,7 @@
 
 ## Workflow & Execution Process
 1. **Analyze & Clarify:** Read the user prompt. If anything is unclear, ask questions immediately.
-2. **Plan:** Create a step-by-step markdown plan under `./.agents/plans/` outlining files to create or modify. Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, a new Gradle plugin, or a new artifact) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
+2. **Plan:** Create a step-by-step markdown plan under `.agents/executionplans` outlining files to create or modify. Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, a new Gradle plugin, or a new artifact) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
 3. **Execute:** Implement changes strictly adhering to the architecture, style, and safety rules below.
 4. **Verify & Build:** After implementation, the task is only complete once the project builds successfully without compilation errors. Run `./gradlew assembleDebug` (or equivalent build command) to confirm.
 
@@ -50,10 +51,13 @@
   * Glimmer UI components must use descriptive suffixes like `Panel`, `Overlay`, or `Screen` (e.g., `NotesOverlay`).
 * **Visibility Modifiers (Strict):** Always restrict access visibility. Only make classes, functions, or properties `public` or `internal` when strictly required. Prefer `private` or package-private scope by default.
 * **Self-Documenting Code:** Code must be clear and readable so that comments are unnecessary. Only add comments or KDoc for non-obvious workarounds or complex business logic.
+* **Composable Structure & Previews:**
+  * Every screen composable (e.g., `NotesOverviewScreen`) must have a `private` content composable (e.g., `NotesOverviewContent`) that takes only plain parameters (no ViewModel injection) — the preview renders this content composable, not the screen wrapper.
+  * All composables used only within a single screen should be `private` in that screen's file.
+  * Reusable composables (used by two or more screens) live in their own files under `ui/components/`, are `internal` or `public`, and must have compose previews in light and dark mode.
 
 ## Anti-Patterns & Forbidden Practices
 * **No Legacy Views:** Do not use XML layouts, ViewBinding, or legacy Fragment APIs. Everything must use Jetpack Compose and Compose Glimmer.
 * **No Business Logic in UI:** Do not implement business logic, heavy calculations, or data processing inside Composable functions or Activities. Always delegate to ViewModels or UseCases.
 * **No Hardcoded Navigation:** Do not trigger screen transitions via raw Intents or direct Activity startups. Always rely on the central Navigation 3 graph.
-* **No Unplanned Code:** Do not write or modify code outside of the approved execution plan in `./.agents/plans/`.
-* **No public/internal composable without a preview:** Every screen composable or reused component should have a compose preview in light and dark mode.
+* **No Unplanned Code:** Do not write or modify code outside of the approved execution plan in `.agents/executionplans`.

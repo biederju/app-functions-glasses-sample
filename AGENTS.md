@@ -1,11 +1,10 @@
 # Agent Instructions
 
 ## Project Context & Scope
-* **App Overview:** A sample Android application centered around **Notes**. It features a phone interface for managing notes (viewing a list, adding via FAB, deleting) and allows users to interact hands-free via display glasses and an AI assistant.
+* **App Overview:** A sample Android application centered around **Notes**. It features a phone interface for managing notes (viewing a list, adding via FAB, deleting) and allows users to interact hands-free via display glasses and an AI assistant via app functions.
 * **Core Focus:** Demonstrate App Functions and Compose Glimmer for display glasses through focused use cases (creating notes via assistant voice command, and querying recent or day-specific notes to display on the glasses).
-* **Simplicity Rule:** Keep the implementation lightweight. Do not include local databases, complex persistence, or tests unless explicitly requested.
-* **Persistence Decision:** Notes persistence uses **Preferences DataStore** (key-value), storing the notes list as JSON under a single preference key. No local database (Room) or Proto DataStore should be introduced for note persistence.
-* **Spec-Driven Development:** Before writing any implementation code, always create an execution plan package and save it under `.agents/executionplans/<execution-plan-name>/<execution-plan-name>.execution-plan.md`.
+* **Simplicity Rule:** Keep the implementation lightweight. Do not write tests unless explicitly requested and do not include a local databases but use **Preferences DataStore** (key-value), storing the notes list as JSON under a single preference key.
+* **Spec-Driven Development:** Before writing any implementation code for a new feature, always create an execution plan package and save the plan under `.agents/executionplans/<execution-plan-name>/<execution-plan-name>.execution-plan.md`.
 * **Clarification First:** Never start implementing if there are ambiguous requirements or open questions. Always clarify everything first.
 
 ## Tech Stack & Library Versions
@@ -13,36 +12,39 @@
 * **Build Tool:** Gradle (Kotlin DSL / .kts)
 * **UI Frameworks:** Jetpack Compose (phone app), Jetpack Compose Glimmer (display glasses app), Material 3
 * **Navigation:** Navigation 3
-* **Storage:** DataStore
+* **Storage:** Preferences DataStore
 * **Dependency Injection:** Hilt
 * **Integration:** Android App Functions / AppSearch
-* **Dependencies:** Always use the latest stable versions of libraries, unless experimental or canary releases are strictly required for XR/Glimmer features.
+* **Gradle:** Kotlin Script (kts)
+* **Dependencies:** Always use the latest stable versions of libraries, unless experimental or canary releases are strictly required for XR/Glimmer or app function features.
 
 ## Language & Documentation Rules
 * **App & Code Language:** All code identifiers, strings, variable names, messages, and UI text (unless explicitly internationalized) must be in **English**.
 * **Comments & Documentation:** Code comments, inline explanations, and KDoc must be written in **English**.
 * **Logging:** Include meaningful, structured log messages (using `Log.d` or standard logging utilities) where it makes sense to trace key events, state changes, or App Function triggers.
 
-## Workflow & Execution Process
+## Workflow & Execution Process for new Features
 1. **Analyze & Clarify:** Read the user prompt. If anything is unclear, ask questions immediately.
-2. **Plan:**
-   * Create a dedicated sub-directory under `.agents/executionplans/` named after the execution plan (e.g., `phone-notes-overview`), and place the plan file inside it as `<execution-plan-name>.execution-plan.md` (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.execution-plan.md`).
-   * Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, a new Gradle plugin, or a new artifact) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
+2. **Plan (New Features):**
+   * Create a dedicated subdirectory under `.agents/executionplans/` named after the execution plan (e.g., `phone-notes-overview`), and place the plan file inside it as `<execution-plan-name>.execution-plan.md` (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.execution-plan.md`).
+   * Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, etc.) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
 3. **Execute & Task Tracking:**
-  * When an execution plan already exists and the prompt instructs you to execute/implement it, **proceed directly to execution** — do NOT create a new execution plan. Only create the corresponding task tracking file (see below) and start implementing.
-  * Create a corresponding task tracking file named `<execution-plan-name>.task.md` inside the exact same sub-directory (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.task.md`) to track progress using markdown checklists.
+  * When an execution plan for a feature already exists and the prompt instructs you to execute/implement it, **proceed directly to execution** — do NOT create a new execution plan. Only create the corresponding task tracking file (see below) and start implementing.
+  * Create a corresponding task tracking file named `<execution-plan-name>.task.md` inside the exact same subdirectory (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.task.md`) to track progress using Markdown checklists.
   * Implement changes strictly adhering to the architecture, style, and safety rules below. Code can be modified, added, and deleted as needed to fulfill the plan.
-4. **Verify, Optimize & Build:**
-  * Before or immediately after verifying the build, ensure all unused imports are cleaned up (optimized imports) across modified files.
-  * After imports optimization and a successful build, format the code (e.g. IDE formatting) so it adheres to project style.
-  * Run `./gradlew assembleDebug` to confirm the project builds successfully without compilation errors. The task is only complete when the build passes and the code is formatted.
+  * If in the execution plan an architectural decision was taken, update the `AGENTS.md` File accordingly.
+  * If the prompt describes improvements or fixes of an already implemented feature, no new execution plan is needed and implementation can start directly. The existing plan and task file can be updated if necessary.
+4. **Build & Verify:**
+   * Run `./gradlew assembleDebug` to confirm the project builds successfully without compilation errors.
+   * After a successful build also always run `./gradlew lintDebug` without errors (warnings are ok).
+   * The task is only complete when the build and lint pass.
 
 ## Architecture & Design Patterns
 * **Single-Activity Architecture:** Use a single-Activity structure with Navigation 3.
 * **Unidirectional Data Flow (UDF):** State flows down from ViewModels as immutable data structures (`StateFlow`), and user or system actions flow up via direct ViewModel function calls or lambdas.
 * **Dependency Injection (Hilt):**
   * Always annotate ViewModels with `@HiltViewModel` and use `@Inject constructor`.
-  * Inject interfaces (e.g., Repositories) rather than concrete implementations.
+  * Inject interfaces (e.g., Repositories) rather than concrete implementations and inject the dispatcher in the constructor of the class with a default (io) if used.
   * Define explicit Hilt modules (`@Module`, `@InstallIn`) for providing dependencies.
 
 ## Concurrency & Error Handling
@@ -56,8 +58,9 @@
 * **Naming Suffixes:**
   * ViewModels must end with the `ViewModel` suffix (e.g., `NotesViewModel`).
   * Repositories must end with the `Repository` suffix (e.g., `NotesRepository`).
+  * Screen-Composables must end with the `Screen` suffix (e.g., `NotesOverviewScreen`).
   * Glimmer UI components must use descriptive suffixes like `Panel`, `Overlay`, or `Screen` (e.g., `NotesOverlay`).
-* **Visibility Modifiers (Strict):** Always restrict access visibility. Only make classes, functions, or properties `public` or `internal` when strictly required. Prefer `private` or package-private scope by default.
+* **Visibility Modifiers (Strict):** Always restrict access visibility. Only make classes, functions, or properties `public` or `internal` when strictly required. Prefer `private` scope by default and prefer `internal` over `public`.
 * **Avoid Deprecated APIs:** Always try to avoid using deprecated functions, classes, or annotations. Prefer their modern replacements or seek the latest non-deprecated API.
 * **Self-Documenting Code:** Code must be clear and readable so that comments are unnecessary. Only add comments or KDoc for non-obvious workarounds or complex business logic.
 * **Composable Structure & Previews:**
@@ -65,10 +68,10 @@
   * All composables used only within a single screen should be `private` in that screen's file.
   * Reusable composables (used by two or more screens) live in their own files under `ui/components/`, are `internal` or `public`.
   * Every composable preview must display **both light and dark mode** via the preview annotation on a single preview composable (e.g., the `@Preview` annotation with `uiMode` / `@PreviewNightMode`, or a multipreview annotation combining light & dark). Do **not** create separate preview composables for each mode.
-  * Previews must always be declared `private`.
+  * Previews must always be declared `private` and positioned at the end of the file.
+* **Named Parameters:** Always use the Kotlin language feature `named parameters/arguments`.
 
 ## Anti-Patterns & Forbidden Practices
 * **No Legacy Views:** Do not use XML layouts, ViewBinding, or legacy Fragment APIs. Everything must use Jetpack Compose and Compose Glimmer.
 * **No Business Logic in UI:** Do not implement business logic, heavy calculations, or data processing inside Composable functions or Activities. Always delegate to ViewModels or UseCases.
 * **No Hardcoded Navigation:** Do not trigger screen transitions via raw Intents or direct Activity startups. Always rely on the central Navigation 3 graph.
-* **No Unplanned Code:** Do not write or modify code outside of the approved execution plan located in `.agents/executionplans/<execution-plan-name>/<execution-plan-name>.execution-plan.md`.

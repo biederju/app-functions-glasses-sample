@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,7 +55,6 @@ import de.julianbiedermann.app_functions_glasses_sample.R
 import de.julianbiedermann.app_functions_glasses_sample.models.Note
 import de.julianbiedermann.app_functions_glasses_sample.ui.theme.AppfunctionsglassessampleTheme
 import java.text.SimpleDateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalProjectedApi::class)
 @Composable
@@ -193,7 +193,8 @@ private fun NoteItem(
 
 @Composable
 private fun NoteItemForeground(note: Note) {
-    val dateFormat = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.getDefault())
+    val locale = Locale.current
+    val dateFormat = SimpleDateFormat("MMM d, yyyy HH:mm", locale.platformLocale)
 
     Row(
         modifier = Modifier

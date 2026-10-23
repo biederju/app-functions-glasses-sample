@@ -17,8 +17,6 @@ import javax.inject.Singleton
 
 private const val TAG = "NotesRepositoryImpl"
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "notes")
-
 @Singleton
 internal class NotesRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>

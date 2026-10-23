@@ -10,7 +10,7 @@ import de.julianbiedermann.app_functions_glasses_sample.ui.notesoverview.NotesOv
 import de.julianbiedermann.app_functions_glasses_sample.ui.theme.AppfunctionsglassessampleTheme
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+internal class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

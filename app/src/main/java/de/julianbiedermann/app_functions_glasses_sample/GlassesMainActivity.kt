@@ -18,13 +18,17 @@ import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.googlefonts.createGoogleSansFlexTypography
+import dagger.hilt.android.AndroidEntryPoint
+import android.util.Log
 
-class GlassesMainActivity : ComponentActivity() {
+@AndroidEntryPoint
+internal class GlassesMainActivity : ComponentActivity() {
     private lateinit var audioInterface: AudioInterface
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = true
         audioInterface = AudioInterface(
             this,
@@ -43,21 +47,16 @@ class GlassesMainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        // Do things to make the user aware that this activity is active (for
-        // example, play audio), when the display state is off
-    }
-
-    override fun onStop() {
-        super.onStop()
-        // Release high-drain resources (camera, mic, sensors)
-        // to prevent battery drain
+    companion object {
+        private const val TAG = "GlassesMainActivity"
     }
 }
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, onClose: () -> Unit) {
+private fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onClose: () -> Unit
+) {
     Box(
         modifier = modifier
             .background(GlimmerTheme.colors.background)
@@ -66,24 +65,24 @@ fun HomeScreen(modifier: Modifier = Modifier, onClose: () -> Unit) {
     ) {
         ActionCard(
             title = {
-                Text(stringResource(id = R.string.app_name))
+                Text(text = stringResource(id = R.string.app_name))
             },
             action = {
                 Button(onClick = {
                     onClose()
                 }) {
-                    Text(stringResource(id = R.string.close))
+                    Text(text = stringResource(id = R.string.close))
                 }
             }
         ) {
-            Text(stringResource(id = R.string.hello_ai_glasses))
+            Text(text = stringResource(id = R.string.hello_ai_glasses))
         }
     }
 }
 
 @Preview(device = "id:ai_glasses_device", backgroundColor = 0x00FF00)
 @Composable
-fun DefaultPreview() {
+private fun DefaultPreview() {
     GlimmerTheme {
         HomeScreen(onClose = {})
     }

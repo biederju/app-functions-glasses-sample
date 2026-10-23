@@ -104,7 +104,7 @@ internal fun NotesOverviewContent(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(id = R.string.app_title_notes))
+                    Text(text = stringResource(id = R.string.app_name))
                 },
                 actions = {
                     Icon(
@@ -121,7 +121,10 @@ internal fun NotesOverviewContent(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(id = R.string.fab_add_note))
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(id = R.string.fab_add_note)
+                )
             }
         }
     ) { paddingValues ->
@@ -140,7 +143,10 @@ internal fun NotesOverviewContent(
                     )
                 }
             } else {
-                NotesList(uiState.notes, onDeleteNote)
+                NotesList(
+                    notes = uiState.notes,
+                    onDeleteNote = onDeleteNote
+                )
             }
         }
     }
@@ -167,7 +173,10 @@ private fun NotesList(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
     ) {
         items(notes, key = { it.id }) { note ->
-            NoteItem(note, onDeleteNote)
+            NoteItem(
+                note = note,
+                onDeleteNote = onDeleteNote
+            )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
     }
@@ -184,10 +193,14 @@ private fun NoteItem(
         state = dismissState,
         modifier = Modifier.fillMaxWidth(),
         backgroundContent = {
-            SwipeDismissBackground(dismissState, onDeleteNote, note.id)
+            SwipeDismissBackground(
+                state = dismissState,
+                onDeleteNote = onDeleteNote,
+                noteId = note.id
+            )
         }
     ) {
-        NoteItemForeground(note)
+        NoteItemForeground(note = note)
     }
 }
 
@@ -271,19 +284,19 @@ private fun AddNoteDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(id = R.string.dialog_add_note_title)) },
+        title = { Text(text = stringResource(id = R.string.dialog_add_note_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = topic,
                     onValueChange = { topic = it },
-                    label = { Text(stringResource(id = R.string.dialog_add_note_topic_hint)) },
+                    label = { Text(text = stringResource(id = R.string.dialog_add_note_topic_hint)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text(stringResource(id = R.string.dialog_add_note_text_hint)) },
+                    label = { Text(text = stringResource(id = R.string.dialog_add_note_text_hint)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
@@ -298,12 +311,12 @@ private fun AddNoteDialog(
                     }
                 }
             ) {
-                Text(stringResource(id = R.string.dialog_add_note_save))
+                Text(text = stringResource(id = R.string.dialog_add_note_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(id = R.string.dialog_add_note_cancel))
+                Text(text = stringResource(id = R.string.dialog_add_note_cancel))
             }
         }
     )

@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
-class AudioInterface(
+internal class AudioInterface(
     private val context: Context,
     private val initializationMessage: String
 ) : DefaultLifecycleObserver {

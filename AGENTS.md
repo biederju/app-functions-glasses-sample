@@ -17,6 +17,15 @@
 * **Integration:** Android App Functions / AppSearch
 * **Gradle:** Kotlin Script (kts)
 * **Dependencies:** Prefer the latest **stable** versions of libraries. Pre-releases (experimental/canary/alpha) are allowed when necessary, since this is a sample app for pre-release features (e.g. XR, Glimmer, Projected, App Functions).
+  > [!WARNING] **Dependency bump blocker**
+  > As of this alignment pass, bumping any AndroidX dependency (e.g. `core-ktx`,
+  > `activity-compose`, `datastore-preferences`, `kotlinx-serialization-json`) to their
+  > latest stable versions triggers resolution of **kotlin-stdlib 2.4.10** (metadata v2.4.0),
+  > which is incompatible with the project's Kotlin compiler `2.2.10` (reads up to v2.3.0).
+  > This is likely caused by `composeBom 2026.03.01` already pulling kotlin-stdlib 2.4.x
+  > transitively. **All library version bumps are blocked** until the project migrates to
+  > **Kotlin 2.4.x+** (a separate plan). This does not affect Hilt, Glimmer, Projected, or
+  > other dependencies that already use stable, compatible versions.
 
 ## Language & Documentation Rules
 * **App & Code Language:** All code identifiers, strings, variable names, messages, and UI text (unless explicitly internationalized) must be in **English**.
@@ -71,7 +80,9 @@
   * Reusable composables (used by two or more screens) live in their own files under `ui/components/`, are `internal` or `public`.
   * Every composable preview must display **both light and dark mode** via the preview annotation on a single preview composable (e.g., the `@Preview` annotation with `uiMode` / `@PreviewNightMode`, or a multipreview annotation combining light & dark). Do **not** create separate preview composables for each mode.
   * Previews must always be declared `private` and positioned at the end of the file.
-* **Named Parameters:** Always use the Kotlin language feature `named parameters/arguments`.
+* **Named Parameters:**
+  * Always use the Kotlin language feature `named parameters/arguments`.
+  * Use named parameters for **all** calls, including single-argument calls (e.g. `Text(text = stringResource(...))`), for consistency and readability.
 
 ## Anti-Patterns & Forbidden Practices
 * **No Legacy Views:** Do not use XML layouts, ViewBinding, or legacy Fragment APIs. Everything must use Jetpack Compose and Compose Glimmer.

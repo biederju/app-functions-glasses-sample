@@ -11,12 +11,12 @@
 * **Language & Standards:** Kotlin (latest stable). Strictly follow official Kotlin Coding and Naming Guidelines.
 * **Build Tool:** Gradle (Kotlin DSL / .kts)
 * **UI Frameworks:** Jetpack Compose (phone app), Jetpack Compose Glimmer (display glasses app), Material 3
-* **Navigation:** Navigation 3
+* **Navigation:** Navigation 3 (required where multi-destination navigation exists; may be omitted for single-screen surfaces)
 * **Storage:** Preferences DataStore
 * **Dependency Injection:** Hilt
 * **Integration:** Android App Functions / AppSearch
 * **Gradle:** Kotlin Script (kts)
-* **Dependencies:** Always use the latest stable versions of libraries, unless experimental or canary releases are strictly required for XR/Glimmer or app function features.
+* **Dependencies:** Prefer the latest **stable** versions of libraries. Pre-releases (experimental/canary/alpha) are allowed when necessary, since this is a sample app for pre-release features (e.g. XR, Glimmer, Projected, App Functions).
 
 ## Language & Documentation Rules
 * **App & Code Language:** All code identifiers, strings, variable names, messages, and UI text (unless explicitly internationalized) must be in **English**.
@@ -24,7 +24,7 @@
 * **Logging:** Include meaningful, structured log messages (using `Log.d` or standard logging utilities) where it makes sense to trace key events, state changes, or App Function triggers.
 
 ## Workflow & Execution Process for new Features
-1. **Analyze & Clarify:** Read the user prompt. If anything is unclear, ask questions immediately.
+1. **Analyze & Clarify:** Read the user prompt. If anything is unclear, ask questions immediately. When the feature involves Glimmer or app functions, first consult the relevant skill under `.agents/skills/` (e.g. `display-glasses-with-jetpack-compose-glimmer`, `appfunctions`) for domain guidance.
 2. **Plan (New Features):**
    * Create a dedicated subdirectory under `.agents/executionplans/` named after the execution plan (e.g., `phone-notes-overview`), and place the plan file inside it as `<execution-plan-name>.execution-plan.md` (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.execution-plan.md`).
    * Any new library/dependency that does not yet exist in the project (e.g. Hilt, Navigation, DataStore, etc.) **must always be explicitly listed in the execution plan** before it is added, including its version and the files (version catalog, build scripts) affected.
@@ -40,11 +40,13 @@
    * The task is only complete when the build and lint pass.
 
 ## Architecture & Design Patterns
-* **Single-Activity Architecture:** Use a single-Activity structure with Navigation 3.
+* **Single-Activity Architecture:** The **phone app** uses a single-Activity structure with Navigation 3. The **glasses experience is an intentional exception**: it runs in a separate XR Activity (e.g. `GlassesMainActivity`).
 * **Unidirectional Data Flow (UDF):** State flows down from ViewModels as immutable data structures (`StateFlow`), and user or system actions flow up via direct ViewModel function calls or lambdas.
 * **Dependency Injection (Hilt):**
   * Always annotate ViewModels with `@HiltViewModel` and use `@Inject constructor`.
-  * Inject interfaces (e.g., Repositories) rather than concrete implementations and inject the dispatcher in the constructor of the class with a default (io) if used.
+  * Annotate Activities with `@AndroidEntryPoint`.
+  * Inject interfaces (e.g., Repositories) rather than concrete implementations.
+  * Inject the dispatcher in the constructor of the class as a `CoroutineDispatcher` with a default of `Dispatchers.IO` (e.g. `dispatcher: CoroutineDispatcher = Dispatchers.IO`) if used.
   * Define explicit Hilt modules (`@Module`, `@InstallIn`) for providing dependencies.
 
 ## Concurrency & Error Handling

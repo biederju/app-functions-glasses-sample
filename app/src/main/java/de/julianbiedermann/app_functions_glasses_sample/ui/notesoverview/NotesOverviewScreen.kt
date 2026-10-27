@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Wifi
@@ -40,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import android.util.Log
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -83,6 +85,18 @@ internal fun NotesOverviewScreen(
         uiState = uiState,
         onAddNote = viewModel::addNote,
         onDeleteNote = viewModel::deleteNote,
+        onSendNote = { note ->
+            viewModel.sendNoteToGlasses(note)
+            if (isConnected) {
+                try {
+                    val options = ProjectedContext.createProjectedActivityOptions(context).toBundle()
+                    val intent = android.content.Intent(context, de.julianbiedermann.app_functions_glasses_sample.GlassesMainActivity::class.java)
+                    context.startActivity(intent, options)
+                } catch (e: Exception) {
+                    Log.e("NotesOverviewScreen", "Error launching glasses", e)
+                }
+            }
+        },
         snackbarHostState = snackbarHostState,
         isConnected = isConnected
     )
@@ -94,6 +108,7 @@ internal fun NotesOverviewContent(
     uiState: NotesOverviewUiState,
     onAddNote: (String, String) -> Unit,
     onDeleteNote: (String) -> Unit,
+    onSendNote: (Note) -> Unit,
     snackbarHostState: SnackbarHostState,
     isConnected: Boolean
 ) {
@@ -145,7 +160,8 @@ internal fun NotesOverviewContent(
             } else {
                 NotesList(
                     notes = uiState.notes,
-                    onDeleteNote = onDeleteNote
+                    onDeleteNote = onDeleteNote,
+                    onSendNote = onSendNote
                 )
             }
         }
@@ -165,7 +181,8 @@ internal fun NotesOverviewContent(
 @Composable
 private fun NotesList(
     notes: List<Note>,
-    onDeleteNote: (String) -> Unit
+    onDeleteNote: (String) -> Unit,
+    onSendNote: (Note) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -175,7 +192,8 @@ private fun NotesList(
         items(notes, key = { it.id }) { note ->
             NoteItem(
                 note = note,
-                onDeleteNote = onDeleteNote
+                onDeleteNote = onDeleteNote,
+                onSendNote = onSendNote
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
@@ -185,7 +203,8 @@ private fun NotesList(
 @Composable
 private fun NoteItem(
     note: Note,
-    onDeleteNote: (String) -> Unit
+    onDeleteNote: (String) -> Unit,
+    onSendNote: (Note) -> Unit
 ) {
     val dismissState = rememberSwipeToDismissBoxState()
 
@@ -200,12 +219,12 @@ private fun NoteItem(
             )
         }
     ) {
-        NoteItemForeground(note = note)
+        NoteItemForeground(note = note, onSendNote = onSendNote)
     }
 }
 
 @Composable
-private fun NoteItemForeground(note: Note) {
+private fun NoteItemForeground(note: Note, onSendNote: (Note) -> Unit) {
     val locale = Locale.current
     val dateFormat = SimpleDateFormat("MMM d, yyyy HH:mm", locale.platformLocale)
 
@@ -216,9 +235,11 @@ private fun NoteItemForeground(note: Note) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(id = R.string.note_timestamp, dateFormat.format(note.timestamp)),
+                style = MaterialTheme.typography.labelSmall
+            )
             Text(
                 text = note.topic,
                 style = MaterialTheme.typography.titleMedium
@@ -231,10 +252,12 @@ private fun NoteItemForeground(note: Note) {
                 )
             }
         }
-        Text(
-            text = stringResource(id = R.string.note_timestamp, dateFormat.format(note.timestamp)),
-            style = MaterialTheme.typography.labelSmall
-        )
+        IconButton(onClick = { onSendNote(note) }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Send,
+                contentDescription = stringResource(id = R.string.send_note)
+            )
+        }
     }
 }
 
@@ -345,6 +368,7 @@ private fun NotesOverviewContentPreview() {
             ),
             onAddNote = { _, _ -> },
             onDeleteNote = { },
+            onSendNote = { },
             snackbarHostState = remember { SnackbarHostState() },
             isConnected = true
         )
@@ -359,6 +383,7 @@ private fun NotesOverviewContentEmptyPreview() {
             uiState = NotesOverviewUiState(notes = emptyList()),
             onAddNote = { _, _ -> },
             onDeleteNote = { },
+            onSendNote = { },
             snackbarHostState = remember { SnackbarHostState() },
             isConnected = false
         )

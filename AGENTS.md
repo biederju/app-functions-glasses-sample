@@ -42,7 +42,7 @@
   * Create a corresponding task tracking file named `<execution-plan-name>.task.md` inside the exact same subdirectory (e.g., `.agents/executionplans/phone-notes-overview/phone-notes-overview.task.md`) to track progress using Markdown checklists.
   * Implement changes strictly adhering to the architecture, style, and safety rules below. Code can be modified, added, and deleted as needed to fulfill the plan.
   * If in the execution plan an architectural decision was taken, update the `AGENTS.md` File accordingly.
-  * If the prompt describes improvements or fixes of an already implemented feature, no new execution plan is needed and implementation can start directly. The existing plan and task file can be updated if necessary.
+  * If the prompt describes improvements or fixes of an already implemented feature, no new execution plan is needed and implementation can start directly. But the existing plan and especially task file should be updated accordingly.
 4. **Build & Verify:**
    * Run `./gradlew assembleDebug` to confirm the project builds successfully without compilation errors.
    * After a successful build also always run `./gradlew lintDebug` without errors (warnings are ok).
@@ -71,6 +71,7 @@
   * Repositories must end with the `Repository` suffix (e.g., `NotesRepository`).
   * Screen-Composables must end with the `Screen` suffix (e.g., `NotesOverviewScreen`).
   * Glimmer UI components must use descriptive suffixes like `Panel`, `Overlay`, or `Screen` (e.g., `NotesOverlay`).
+  * Generally every parameter name should represent its type, e.g. `val sentNotesRepository: SentNotesRepository`, `val viewModel: NotesOverviewViewModel`.
 * **Visibility Modifiers (Strict):** Always restrict access visibility. Only make classes, functions, or properties `public` or `internal` when strictly required. Prefer `private` scope by default and prefer `internal` over `public`.
 * **Avoid Deprecated APIs:** Always try to avoid using deprecated functions, classes, or annotations. Prefer their modern replacements or seek the latest non-deprecated API.
 * **Self-Documenting Code:** Code must be clear and readable so that comments are unnecessary. Only add comments or KDoc for non-obvious workarounds or complex business logic.
@@ -80,6 +81,10 @@
   * Reusable composables (used by two or more screens) live in their own files under `ui/components/`, are `internal` or `public`.
   * Every composable preview must display **both light and dark mode** via the preview annotation on a single preview composable (e.g., the `@Preview` annotation with `uiMode` / `@PreviewNightMode`, or a multipreview annotation combining light & dark). Do **not** create separate preview composables for each mode.
   * Previews must always be declared `private` and positioned at the end of the file.
+* **Data Down, Events Up:**
+  * Avoid passing classes like ViewModels or Repositories down to sub-composables. Instead, pass plain data as parameters and use callback lambdas for events.
+  * Inject dependencies (ViewModels, Repositories) at the highest level possible — typically the screen composable or Activity (e.g., `GlassesMainActivity`).
+  * This pattern improves testability, reduces coupling, and makes the data flow explicit and predictable.
 * **Named Parameters:**
   * Always use the Kotlin language feature `named parameters/arguments`.
   * Use named parameters for **all** calls, including single-argument calls (e.g. `Text(text = stringResource(...))`), for consistency and readability.

@@ -8,9 +8,12 @@ All showcase features are built around a hands-free note-taking workflow.
 
 ## Features
 
-* **Phone Note Management:** A simple local list showing notes with a topic, text, and timestamp, featuring a Floating Action Button (FAB) to add notes and options to delete them.
-* **Hands-Free Note Creation:** Users can speak to the AI assistant on the glasses to create a new note via an app function.
-* **Contextual Glasses Display:** Users can ask the assistant to show the last n notes or all notes from a specific day, which are then rendered on the glasses using Compose Glimmer.
+* **Phone Note Management:** A simple local list showing notes with a topic, text, and timestamp,
+  featuring a Floating Action Button (FAB) to add notes and options to delete them.
+* **Hands-Free Note Creation:** Users can speak to the AI assistant on the glasses to create a new
+  note via an app function.
+* **Contextual Glasses Display:** Users can ask the assistant to show the last n notes or all notes
+  from a specific day, which are then rendered on the glasses using Compose Glimmer.
 
 ## Requirements
 

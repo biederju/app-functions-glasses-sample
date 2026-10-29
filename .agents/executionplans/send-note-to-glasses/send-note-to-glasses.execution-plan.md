@@ -14,12 +14,12 @@ This plan follows `AGENTS.md` (spec-driven development, plan under
 
 ## Clarified Decisions (from user)
 
-| Question | User Decision |
-| --- | --- |
+| Question                                                | User Decision                                                                                                                                                                                                          |
+|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | How the note reaches the separate `GlassesMainActivity` | Launch/bring-up `GlassesMainActivity` via `ProjectedContext`. Both activities run **in the same process**, so share the sent-note queue through a **`@Singleton` in-memory repository** (no IPC serialization needed). |
-| Glasses presentation of sent notes | Queue / show a **list** of the notes sent this session (not a single card). Each queued note is its own card with a Close button. |
-| Phone list item reorder | timestamp → **overline**, title stays **headline**, text becomes **subline** on the phone list (mirrors the glasses card). |
-| Glasses layout of the sent-note cards | **Glimmer `HorizontalStack`**: one full note card visible at a time (scrollable + Close button), **horizontal** swipe between notes. |
+| Glasses presentation of sent notes                      | Queue / show a **list** of the notes sent this session (not a single card). Each queued note is its own card with a Close button.                                                                                      |
+| Phone list item reorder                                 | timestamp → **overline**, title stays **headline**, text becomes **subline** on the phone list (mirrors the glasses card).                                                                                             |
+| Glasses layout of the sent-note cards                   | **Glimmer `HorizontalStack`**: one full note card visible at a time (scrollable + Close button), **horizontal** swipe between notes.                                                                                   |
 
 ## Resolved Design — Glimmer HorizontalStack of note cards
 
@@ -43,9 +43,11 @@ scroll within the card).
 ### Data / Shared State Layer
 
 #### [NEW] [repositories/SentNotesRepository.kt] (interface)
+
 ```
 app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/repositories/SentNotesRepository.kt
 ```
+
 ```kotlin
 internal interface SentNotesRepository {
     val sentNotes: Flow<List<Note>>
@@ -55,10 +57,12 @@ internal interface SentNotesRepository {
 ```
 
 #### [NEW] [repositories/SentNotesRepositoryImpl.kt]
+
 In-memory `@Singleton` implementation backed by a `MutableStateFlow<List<Note>>`.
 `addNote` appends, `dismissNote` filters out the id. Internal visibility.
 
 #### [MODIFY] [di/RepositoryModule.kt]
+
 Add `@Binds` binding `SentNotesRepositoryImpl` → `SentNotesRepository`
 (alongside the existing `NotesRepository` binding).
 
@@ -70,6 +74,7 @@ Add `@Binds` binding `SentNotesRepositoryImpl` → `SentNotesRepository`
 ### Phone (Notes Overview) Layer
 
 #### [MODIFY] [ui/notesoverview/NotesOverviewViewModel.kt]
+
 - Inject `SentNotesRepository` (and the app `Context`/dispatcher for the projection
   launch on `Dispatchers.IO`).
 - Add `fun sendNoteToGlasses(note: Note, launchOnGlasses: (Context) -> Unit)` that
@@ -77,6 +82,7 @@ Add `@Binds` binding `SentNotesRepositoryImpl` → `SentNotesRepository`
   Logging via `Log.d`; `try-catch` around the launch.
 
 #### [MODIFY] [ui/notesoverview/NotesOverviewScreen.kt]
+
 - Add a trailing **send** `IconButton` (send icon) in each note row.
 - Reorder each row: **timestamp** (overline) → **topic** (headline) → **text** (subline).
 - Hoist `onSendNote: (Note) -> Unit` through `NotesOverviewContent`/`NotesList`/`NoteItem`
@@ -87,22 +93,22 @@ Add `@Binds` binding `SentNotesRepositoryImpl` → `SentNotesRepository`
 ### Glasses Layer
 
 #### [MODIFY] [GlassesMainActivity.kt]
+
 - Replace the static `HomeScreen` with a **`SentNotesOverlay`** (suffix per AGENTS.md)
   that:
-  - Collects `SentNotesRepository.sentNotes` via `collectAsStateWithLifecycle`.
-  - Wraps the sent notes in a **Glimmer `HorizontalStack`** (`androidx.xr.glimmer.stack`)
-    that displays **one note card at a time**; the user swipes **horizontally** between notes
-    (vertical swipe stays available to scroll long card content).
-  - **Each note is a Glimmer `ActionCard`** with vertical order **timestamp (overline) →
-    title (headline) → text (subline)**, and a **Close** `Button` that calls
-    `dismissNote(note.id)`. Use `StackScope.item`/`items` to add the note cards by key
-    (note id).
-  - Each card's **content is scrollable** for long text (a `Column`/text area with a
-    scroll modifier sized to the card), so long notes scroll within the card.
-  - **Empty state**: when the queue is empty, skip the stack and show a lightweight
-    Glimmer fallback message (graceful degradation per AGENTS.md).
-  - Recommend `TextStyle.textMotion = TextMotion.Animated` for stack text per Glimmer
-    guidance to avoid pixel-snapping artifacts.
+    - Collects `SentNotesRepository.sentNotes` via `collectAsStateWithLifecycle`.
+    - Wraps the sent notes in a **Glimmer `HorizontalStack`** (`androidx.xr.glimmer.stack`)
+      that displays **one note card at a time**; the user swipes **horizontally** between notes
+      (vertical swipe stays available to scroll long card content).
+    - **Each note is a Glimmer `ActionCard`** with vertical order **timestamp (overline) →
+      title (headline) → text (subline)**, and a **Close** `Button` that calls
+      `dismissNote(note.id)`. Use `StackScope.item`/`items` to add the note cards by key (note id).
+    - Each card's **content is scrollable** for long text (a `Column`/text area with a
+      scroll modifier sized to the card), so long notes scroll within the card.
+    - **Empty state**: when the queue is empty, skip the stack and show a lightweight
+      Glimmer fallback message (graceful degradation per AGENTS.md).
+    - Recommend `TextStyle.textMotion = TextMotion.Animated` for stack text per Glimmer
+      guidance to avoid pixel-snapping artifacts.
 - Keep `GlimmerTheme` + `createGoogleSansFlexTypography`, mandatory pure-black root
   background, `isInitialFocusOnFocusableAvailable = true`, and the `AudioInterface`
   greeting.
@@ -112,10 +118,12 @@ Add `@Binds` binding `SentNotesRepositoryImpl` → `SentNotesRepository`
 ### Manifest / Resources
 
 #### [MODIFY] [AndroidManifest.xml]
+
 - Set `GlassesMainActivity` `android:launchMode="singleTop"` so repeated sends bring the
   already-open glasses screen forward without recreating it.
 
 #### [MODIFY] [res/values/strings.xml]
+
 - Add English strings: send-button content description (`send_note`), **Dismiss** button label
   (`dismiss_note_card`), audio phrases (`note_displayed`, `note_dismissed`), and an empty-queue
   fallback message.
@@ -178,10 +186,12 @@ incorrectly speaking "Note displayed" when notes were removed.
 ## Verification Plan
 
 ### Build / Lint
+
 - `./gradlew assembleDebug` — must compile without errors.
 - `./gradlew lintDebug` — must pass without errors (warnings ok).
 
 ### Manual Verification
+
 - Deploy phone app with display glasses connected.
 - Add a couple of notes; tap **send** on each → glasses shows the sent notes.
 - Verify each card shows timestamp/title/text in order.

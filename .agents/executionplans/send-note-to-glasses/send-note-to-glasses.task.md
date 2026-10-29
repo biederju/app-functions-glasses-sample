@@ -7,7 +7,7 @@
 - [x] Update AndroidManifest.xml (add singleTop launchMode)
 - [x] Update strings.xml (add new strings)
 - [x] Build & lint verification
-- [x] Wire Dismiss button to call dismissNote(noteId) instead of empty onClick
-- [x] Add audioInterface.speak() calls for "Note displayed" and "Note dismissed"
+- [x] Wire Dismiss button to call dismissNote (noteId) instead of empty onClick
+- [x] Add audioInterface.speak () calls for "Note displayed" and "Note dismissed"
 - [x] Change button text from "Close" to "Dismiss"
 - [x] Fix pager not scrolling to newly sent notes (LaunchedEffect + animateScrollToPage)

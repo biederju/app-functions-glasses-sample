@@ -1,4 +1,4 @@
-package de.julianbiedermann.app_functions_glasses_sample
+package de.julianbiedermann.app_functions_glasses_sample.glasses
 
 import android.content.Context
 import android.speech.tts.TextToSpeech

@@ -21,23 +21,24 @@ feature also establishes those foundational building blocks:
 
 ## Clarified Decisions (from user)
 
-| Question | Decision |
-| --- | --- |
-| Persistence approach | Preferences **DataStore** (JSON-encoded list, non-database) |
-| Hilt + Navigation 3 now or later | Hilt **now**; Navigation 3 **not needed** for single-screen UI |
-| ConnectionScreen fate | **Removed** — Notes Overview becomes the primary phone destination |
-| Glasses connection indicator | **Single icon** in the top app bar (right side) that changes based on connection status |
-| Add Note interaction | Material 3 **AlertDialog** with topic + text fields |
-| Delete interaction | Material 3 **SwipeToDismissBox** |
-| Screen naming | `NotesOverviewScreen` + `NotesOverviewViewModel` + `NotesOverviewUiState` in `ui/notesoverview` |
-| Package layout | `models/Note.kt` and `repositories/NotesRepository.kt` (not `data/...`) |
-| Visibility | All new classes/interfaces use `internal` visibility modifier |
-| Unit tests | Not needed for `NotesRepositoryImpl` (no plain JVM tests required) |
-| Composable structure | `private` composables within a screen file; `internal`/`public` reusable composables in `ui/components/` |
+| Question                         | Decision                                                                                                 |
+|----------------------------------|----------------------------------------------------------------------------------------------------------|
+| Persistence approach             | Preferences **DataStore** (JSON-encoded list, non-database)                                              |
+| Hilt + Navigation 3 now or later | Hilt **now**; Navigation 3 **not needed** for single-screen UI                                           |
+| ConnectionScreen fate            | **Removed** — Notes Overview becomes the primary phone destination                                       |
+| Glasses connection indicator     | **Single icon** in the top app bar (right side) that changes based on connection status                  |
+| Add Note interaction             | Material 3 **AlertDialog** with topic + text fields                                                      |
+| Delete interaction               | Material 3 **SwipeToDismissBox**                                                                         |
+| Screen naming                    | `NotesOverviewScreen` + `NotesOverviewViewModel` + `NotesOverviewUiState` in `ui/notesoverview`          |
+| Package layout                   | `models/Note.kt` and `repositories/NotesRepository.kt` (not `data/...`)                                  |
+| Visibility                       | All new classes/interfaces use `internal` visibility modifier                                            |
+| Unit tests                       | Not needed for `NotesRepositoryImpl` (no plain JVM tests required)                                       |
+| Composable structure             | `private` composables within a screen file; `internal`/`public` reusable composables in `ui/components/` |
 
 ## Resolved Design
 
-- The phone UI consists of a **single Activity with one primary destination: `NotesOverviewScreen`**.
+- The phone UI consists of a **single Activity with one primary destination:
+  `NotesOverviewScreen`**.
   The previous "ConnectionScreen" (a full-screen button to launch glasses) is **removed**.
 - **Glasses connectivity indicator:** Moved into the **top app bar** on the **right side** as a
   **single status icon** that reflects connected/disconnected state. The icon uses the **wifi
@@ -45,8 +46,8 @@ feature also establishes those foundational building blocks:
   (`Icons.Filled.WifiOff`) when **not connected**. There is no separate launch-glasses action
   icon — the status icon serves that purpose (tapping launches glasses when connected). The old
   full-screen ConnectionScreen button is removed.
-- **DataStore JSON serialization:** The notes list is serialized to JSON
-  (`kotlinx.serialization`) and stored under a single Preference key. Proto DataStore is
+- **DataStore JSON serialization:** The notes list is serialized to JSON (`kotlinx.serialization`)
+  and stored under a single Preference key. Proto DataStore is
   avoided to keep it lightweight.
 - **Deletion:** Swipe-to-Dismiss (Material 3 `SwipeToDismissBox`) — chosen "state-of-the-art"
   interaction.
@@ -65,9 +66,12 @@ feature also establishes those foundational building blocks:
 ### Build & Dependency Layer
 
 #### [MODIFY] [libs.versions.toml](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/gradle/libs.versions.toml)
+
 Add version + library entries for:
+
 - Hilt (Dagger) — `com.google.dagger:hilt-android` + `hilt-compiler` (stable ~2.60.x)
-- Hilt Navigation Compose — `androidx.hilt:hilt-navigation-compose` (1.4.0) — **only for `hiltViewModel()`**
+- Hilt Navigation Compose — `androidx.hilt:hilt-navigation-compose` (1.4.0) — **only for
+  `hiltViewModel()`**
 - KSP plugin — version matched to Kotlin `2.2.10` (e.g. `2.2.10-2.0.x`)
 - DataStore Preferences — `androidx.datastore:datastore-preferences` (1.2.1)
 - JSON serialization — `kotlinx-serialization-json`
@@ -77,11 +81,13 @@ Add version + library entries for:
 > **Navigation 3** (`androidx.navigation3:*`) is **NOT** added — see note above.
 
 #### [MODIFY] [app/build.gradle.kts](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/build.gradle.kts)
+
 Apply plugins: `com.google.devtools.ksp`, `dagger.hilt.android.plugin`,
 `org.jetbrains.kotlin.plugin.serialization`.
 Add dependencies (implementation + `ksp` for `hilt-compiler`).
 
 #### [MODIFY] [settings.gradle.kts](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/settings.gradle.kts)
+
 Declare the plugin versions in `pluginManagement` `plugins` block (or rely on version catalog
 `[plugins]` + top-level plugin declaration).
 
@@ -90,12 +96,15 @@ Declare the plugin versions in `pluginManagement` `plugins` block (or rely on ve
 ### Application & DI
 
 #### [NEW] [AppFunctionsGlassesSampleApplication.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/AppFunctionsGlassesSampleApplication.kt)
+
 `@HiltAndroidApp internal class AppFunctionsGlassesSampleApplication : Application()`.
 
 #### [MODIFY] [AndroidManifest.xml](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/AndroidManifest.xml)
+
 Reference the new Application class via `android:name`.
 
 #### [NEW] [di/DatabaseModule.kt] (DataStore Provider)
+
 `@Module @InstallIn(SingletonComponent::class)` providing the
 `DataStore<Preferences>` via `preferencesDataStore` delegate at `applicationContext`.
 Internal visibility.
@@ -105,9 +114,11 @@ Internal visibility.
 ### Domain / Data Layer
 
 #### [NEW] [models/Note.kt]
+
 ```
 app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/models/Note.kt
 ```
+
 ```kotlin
 @Serializable
 internal data class Note(
@@ -117,12 +128,15 @@ internal data class Note(
     val timestamp: Long
 )
 ```
+
 Immutable model with English identifiers.
 
 #### [NEW] [repositories/NotesRepository.kt] (interface)
+
 ```
 app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/repositories/NotesRepository.kt
 ```
+
 ```kotlin
 internal interface NotesRepository {
     val notes: Flow<List<Note>>
@@ -132,9 +146,11 @@ internal interface NotesRepository {
 ```
 
 #### [NEW] [repositories/NotesRepositoryImpl.kt]
+
 ```
 app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/repositories/NotesRepositoryImpl.kt
 ```
+
 `@Singleton` / Hilt-injected implementation backed by the `DataStore<Preferences>`.
 Persists the list as JSON under a single key; exposes the list as `Flow<List<Note>>`
 (from the DataStore `data` flow, mapping + sorting by timestamp desc).
@@ -142,6 +158,7 @@ Handles empty/failed decode gracefully (returns empty list).
 Internal visibility. No plain unit tests required.
 
 #### [NEW] [di/RepositoryModule.kt]
+
 `@Module @InstallIn(SingletonComponent::class)` binding `NotesRepository`
 to `NotesRepositoryImpl` (abstract binding via `@Binds`).
 Internal visibility.
@@ -151,15 +168,18 @@ Internal visibility.
 ### UI / Presentation Layer
 
 #### [NEW] [ui/notesoverview/NotesOverviewUiState.kt]
+
 ```
 app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/ui/notesoverview/NotesOverviewUiState.kt
 ```
+
 ```kotlin
 internal data class NotesOverviewUiState(
     val notes: List<Note> = emptyList(),
     val error: String? = null
 )
 ```
+
 > [!NOTE] **No `isLoading` field.** There are no backend/network requests (all data is local in
 > DataStore), so a loading indicator is not needed. The plan intentionally omits any loading
 > state/spinner to keep the screen direct and instant.
@@ -167,12 +187,15 @@ internal data class NotesOverviewUiState(
 Optional: add-note dialog state fields.
 
 #### [NEW] [ui/notesoverview/NotesOverviewViewModel.kt]
+
 `@HiltViewModel internal class NotesOverviewViewModel @Inject constructor(repo: NotesRepository) : ViewModel()`.
+
 - Exposes `val uiState: StateFlow<NotesOverviewUiState>` (combining repo flow with loading/error).
 - User events (functions): `loadNotes()`, `addNote(topic, text)`, `deleteNote(note)`.
 - All background work on `viewModelScope` + `Dispatchers.IO`; explicit `try-catch` error handling.
 
 #### [NEW] [ui/notesoverview/NotesOverviewScreen.kt]
+
 - `NotesOverviewScreen()` — `internal` screen wrapper that collects the ViewModel state and
   delegates to `NotesOverviewContent`.
 - `private NotesOverviewContent(uiState, onAddNote, onDeleteNote, ...)` — the actual screen
@@ -187,6 +210,7 @@ Optional: add-note dialog state fields.
   in **light and dark** mode, since `NotesOverviewContent` has no ViewModel injection.
 
 #### [MODIFY] [MainActivity.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/MainActivity.kt)
+
 `@AndroidEntryPoint`. `setContent { theme { NotesOverviewScreen() } }`.
 Remove the existing inline `ConnectionScreen` composable entirely (per user decision); the
 Notes Overview becomes the primary destination and the glasses-launch + connection status move
@@ -197,10 +221,12 @@ into the Notes Overview top app bar.
 ### Resources
 
 #### [MODIFY] [strings.xml](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/res/values/strings.xml)
+
 Add English UI strings: screen title, FAB content description, add-note dialog labels,
 note topic/text/timestamp hints, empty-state text, delete confirmation.
 
 #### [MODIFY] [themes.xml] (if needed)
+
 Ensure a Material 3 theme/window background compatible with the Notes UI (likely already fine).
 
 ---
@@ -225,6 +251,7 @@ MainActivity (single Activity, @AndroidEntryPoint)
 ```
 
 **State management (UDF):**
+
 - *State flows down:* `NotesOverviewUiState` exposed on `StateFlow`, collected with
   `collectAsStateWithLifecycle`.
 - *Events flow up:* direct VM calls `viewModel.addNote(...)`, `viewModel.deleteNote(...)`.
@@ -234,10 +261,12 @@ MainActivity (single Activity, @AndroidEntryPoint)
 ## Verification Plan
 
 ### Build
+
 - Run `./gradlew assembleDebug` and confirm it compiles with no errors (required by AGENTS.md).
 - Run `./gradlew :app:compileDebugKotlin` if needed to isolate Kotlin errors faster.
 
 ### Manual Verification (functional requirements)
+
 - **Swipe-to-delete:** Swipe a note; confirm it is removed from the screen and the list refreshes
   correctly after deletion (DataStore flow emits the updated list).
 - **Glasses connection icon:** Confirm the top app bar shows the **wifi icon** when connected and
@@ -249,5 +278,6 @@ MainActivity (single Activity, @AndroidEntryPoint)
 - **Dividers:** Confirm note items are visually separated by `HorizontalDivider`s.
 
 ### Automated Tests
+
 - **None** required for this feature. The user explicitly stated no plain unit tests are needed
   for `NotesRepositoryImpl`. AGENTS.md: no tests unless explicitly requested.

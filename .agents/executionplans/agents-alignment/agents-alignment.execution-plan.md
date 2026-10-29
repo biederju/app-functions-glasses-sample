@@ -14,10 +14,10 @@ source files that deviate from the AGENTS.md conventions **without adding new fe
 
 ## Scope Decision (confirmed with user)
 
-| Item | Decision |
-| --- | --- |
+| Item                          | Decision                                                                |
+|-------------------------------|-------------------------------------------------------------------------|
 | **App Functions / AppSearch** | **Deferred.** Not implemented in this plan (still absent from project). |
-| **Navigation 3 (phone)** | **Deferred.** Keep the single-screen phone UI without a nav graph. |
+| **Navigation 3 (phone)**      | **Deferred.** Keep the single-screen phone UI without a nav graph.      |
 
 > [!NOTE]
 > Although `AGENTS.md` lists **App Functions / AppSearch** as a core focus and in the tech
@@ -29,21 +29,22 @@ source files that deviate from the AGENTS.md conventions **without adding new fe
 
 The following concrete deviations from AGENTS.md were found during analysis:
 
-| # | File | Issue | AGENTS.md Rule |
-| --- | --- | --- | --- |
-| 1 | `audioInterface.kt` | File name is lowercase; Kotlin class files should be PascalCase matching the class | Language & Standards (Kotlin Naming Guidelines) |
-| 2 | `AudioInterface` | `class AudioInterface` is `public` by default | Visibility: prefer `private`, then `internal` |
-| 3 | `GlassesMainActivity.kt` | `GlassesMainActivity` is not annotated `@AndroidEntryPoint` | DI: "Annotate Activities with `@AndroidEntryPoint`" |
-| 4 | `GlassesMainActivity.kt` — `HomeScreen` | `HomeScreen` composable is `public` (no modifier), only used within this file | Composable structure: single-screen composables should be `private` |
-| 5 | `GlassesMainActivity.kt` — `DefaultPreview` | Preview is `public` | Previews must be `private` and at end of file (it is at end, but visibility is wrong) |
-| 6 | `Color.kt` | `Purple40`, `Purple80`, etc. are `public`; only used within the theme package | Visibility: prefer `internal` over `public` |
-| 7 | `libs.versions.toml` | `coreKtx`, `activityCompose`, `datastorePreferences`, `kotlinxSerialization` are **not** on latest stable | Dependencies: "Prefer the latest **stable** versions" |
+| # | File                                        | Issue                                                                                                     | AGENTS.md Rule                                                                        |
+|---|---------------------------------------------|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| 1 | `audioInterface.kt`                         | File name is lowercase; Kotlin class files should be PascalCase matching the class                        | Language & Standards (Kotlin Naming Guidelines)                                       |
+| 2 | `AudioInterface`                            | `class AudioInterface` is `public` by default                                                             | Visibility: prefer `private`, then `internal`                                         |
+| 3 | `GlassesMainActivity.kt`                    | `GlassesMainActivity` is not annotated `@AndroidEntryPoint`                                               | DI: "Annotate Activities with `@AndroidEntryPoint`"                                   |
+| 4 | `GlassesMainActivity.kt` — `HomeScreen`     | `HomeScreen` composable is `public` (no modifier), only used within this file                             | Composable structure: single-screen composables should be `private`                   |
+| 5 | `GlassesMainActivity.kt` — `DefaultPreview` | Preview is `public`                                                                                       | Previews must be `private` and at end of file (it is at end, but visibility is wrong) |
+| 6 | `Color.kt`                                  | `Purple40`, `Purple80`, etc. are `public`; only used within the theme package                             | Visibility: prefer `internal` over `public`                                           |
+| 7 | `libs.versions.toml`                        | `coreKtx`, `activityCompose`, `datastorePreferences`, `kotlinxSerialization` are **not** on latest stable | Dependencies: "Prefer the latest **stable** versions"                                 |
 
 ## Proposed Changes
 
 ### Component: Glasses Experience (GlassesMainActivity.kt + audio file)
 
 #### [MODIFY] [GlassesMainActivity.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/GlassesMainActivity.kt)
+
 - Annotate `GlassesMainActivity` with `@AndroidEntryPoint` (Hilt DI consistency; no injection
   yet but keeps the app's DI binding contract for Activities).
 - Change `HomeScreen` visibility from public → `private`.
@@ -52,17 +53,22 @@ The following concrete deviations from AGENTS.md were found during analysis:
   glasses close action) to satisfy the logging guideline.
 - Keep the existing `onClose` lambda and layout unchanged.
 
-#### [RENAME] [audioInterface.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/audioInterface.kt) → `AudioInterface.kt`
+#### [RENAME] [audioInterface.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/audioInterface.kt) →
+
+`AudioInterface.kt`
+
 - Rename file to `AudioInterface.kt` (PascalCase matching the class).
 - Record the rename via git (file moved, not duplicated).
 - No logic changes.
 
 #### [MODIFY] [AudioInterface.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/AudioInterface.kt)
+
 - Change `class AudioInterface` visibility from public → `internal`.
 
 ### Component: Theme
 
 #### [MODIFY] [Color.kt](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/src/main/java/de/julianbiedermann/app_functions_glasses_sample/ui/theme/Color.kt)
+
 - Change the six color `val`s from `public` → `internal` (they are only consumed within the
   `ui/theme` package, so private would also suffice; `internal` is chosen per "prefer internal
   over public").
@@ -75,20 +81,21 @@ The following catalog entries are **behind** the current stable release (verifie
 `version_lookup`). Bumping them keeps the project aligned with AGENTS.md's "prefer latest
 stable" rule:
 
-| Catalog entry (`libs.versions.toml`) | Current in catalog | Latest stable | Action |
-| --- | --- | --- | --- |
-| `coreKtx` | `1.10.1` | `1.19.1` | **Reverted** — kotlin-stdlib 2.4.10 incompatible with Kotlin 2.2.10 |
-| `activityCompose` | `1.8.0` | `1.13.0` | **Reverted** — kotlin-stdlib 2.4.10 incompatible with Kotlin 2.2.10 |
-| `datastorePreferences` | `1.2.1` | `1.3.0` | **Reverted** — kotlin-stdlib 2.4.10 pulled via transitive deps |
-| `kotlinxSerialization` | `1.11.0` | `1.12.0` | **Reverted** — kotlin-stdlib 2.4.10 pulled via transitive deps |
-| `hilt` | `2.60.1` | `2.60.1` | Already current |
-| `lifecycleViewModelCompose` | `2.11.0` | `2.11.0` | Already current |
-| `hiltNavigationCompose` | `1.4.0` | `1.4.0` | Already current |
-| `hilt` | `2.60.1` | `2.60.1` | Already current |
-| `lifecycleViewModelCompose` | `2.11.0` | `2.11.0` | Already current |
-| `hiltNavigationCompose` | `1.4.0` | `1.4.0` | Already current |
+| Catalog entry (`libs.versions.toml`) | Current in catalog | Latest stable | Action                                                              |
+|--------------------------------------|--------------------|---------------|---------------------------------------------------------------------|
+| `coreKtx`                            | `1.10.1`           | `1.19.1`      | **Reverted** — kotlin-stdlib 2.4.10 incompatible with Kotlin 2.2.10 |
+| `activityCompose`                    | `1.8.0`            | `1.13.0`      | **Reverted** — kotlin-stdlib 2.4.10 incompatible with Kotlin 2.2.10 |
+| `datastorePreferences`               | `1.2.1`            | `1.3.0`       | **Reverted** — kotlin-stdlib 2.4.10 pulled via transitive deps      |
+| `kotlinxSerialization`               | `1.11.0`           | `1.12.0`      | **Reverted** — kotlin-stdlib 2.4.10 pulled via transitive deps      |
+| `hilt`                               | `2.60.1`           | `2.60.1`      | Already current                                                     |
+| `lifecycleViewModelCompose`          | `2.11.0`           | `2.11.0`      | Already current                                                     |
+| `hiltNavigationCompose`              | `1.4.0`            | `1.4.0`       | Already current                                                     |
+| `hilt`                               | `2.60.1`           | `2.60.1`      | Already current                                                     |
+| `lifecycleViewModelCompose`          | `2.11.0`           | `2.11.0`      | Already current                                                     |
+| `hiltNavigationCompose`              | `1.4.0`            | `1.4.0`       | Already current                                                     |
 
 #### [MODIFY] [libs.versions.toml](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/gradle/libs.versions.toml)
+
 - **All version bumps reverted.** Every attempted bump (`coreKtx`, `activityCompose`,
   `datastorePreferences`, `kotlinxSerialization`) triggered resolution of kotlin-stdlib 2.4.10
   (metadata v2.4.0), which is incompatible with the project's Kotlin compiler `2.2.10` (reads
@@ -100,6 +107,7 @@ stable" rule:
   bumped to their latest stable.
 
 #### [MODIFY] [app/build.gradle.kts](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/build.gradle.kts)
+
 - No direct edit required for these bumps (they flow through the version catalog); the file is
   listed for completeness since it consumes the affected libraries.
 
@@ -134,16 +142,19 @@ All **multi-parameter** composable calls already use named arguments (e.g., `Ale
 ## Verification Plan
 
 ### Build & Lint (required by AGENTS.md)
+
 1. Run `./gradlew assembleDebug` — must compile with no errors.
 2. Run `./gradlew lintDebug` — no errors (warnings ok).
 
 ### Dependency Bump Verification
+
 - After bumping `coreKtx` / `activityCompose` / `datastorePreferences` / `kotlinxSerialization`,
   run `./gradlew assembleDebug` and confirm compilation still succeeds.
 - **Fallback:** if a bump breaks compilation with no small fix available, revert that specific
   version, keep the rest, and flag the reverted bump to the user.
 
 ### Manual Verification
+
 - Confirm `GlassesMainActivity` still launches the glasses experience without crashing.
 - Confirm the TTS `AudioInterface` still initializes and speaks on `onStart`.
 - Confirm no behavior/functionality regressions; the code changes are visibility/naming/logging

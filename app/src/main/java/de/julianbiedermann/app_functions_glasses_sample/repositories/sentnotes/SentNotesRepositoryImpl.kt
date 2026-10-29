@@ -14,11 +14,11 @@ private const val TAG = "SentNotesRepositoryImpl"
 @Singleton
 internal class SentNotesRepositoryImpl @Inject constructor() : SentNotesRepository {
 
-    private val _sentNotes = MutableStateFlow<List<Note>>(emptyList())
+    private val _sentNotes = MutableStateFlow<List<Note>>(value = listOf())
     override val sentNotes: StateFlow<List<Note>> = _sentNotes.asStateFlow()
 
     override fun addNote(note: Note) {
-        _sentNotes.update { current -> current + note }
+        _sentNotes.update { current -> (current.filterNot { it.id == note.id }) + note }
         Log.d(TAG, "Added note to glasses queue: ${note.topic}")
     }
 

@@ -1,5 +1,6 @@
 package de.julianbiedermann.app_functions_glasses_sample.ui.notesoverview
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +26,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
@@ -35,13 +35,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import android.util.Log
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,8 +52,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import de.julianbiedermann.app_functions_glasses_sample.R
+import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
 import de.julianbiedermann.app_functions_glasses_sample.models.Note
-import de.julianbiedermann.app_functions_glasses_sample.ui.theme.AppfunctionsglassessampleTheme
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalProjectedApi::class)
@@ -72,15 +70,6 @@ internal fun NotesOverviewScreen(
         scope.coroutineContext
     ).collectAsStateWithLifecycle(initialValue = false)
 
-    LaunchedEffect(uiState.error) {
-        uiState.error?.let { error ->
-            snackbarHostState.showSnackbar(
-                message = error,
-                duration = SnackbarDuration.Short
-            )
-        }
-    }
-
     NotesOverviewContent(
         uiState = uiState,
         onAddNote = viewModel::addNote,
@@ -89,8 +78,9 @@ internal fun NotesOverviewScreen(
             viewModel.sendNoteToGlasses(note)
             if (isConnected) {
                 try {
-                    val options = ProjectedContext.createProjectedActivityOptions(context).toBundle()
-                    val intent = android.content.Intent(context, de.julianbiedermann.app_functions_glasses_sample.GlassesMainActivity::class.java)
+                    val options =
+                        ProjectedContext.createProjectedActivityOptions(context).toBundle()
+                    val intent = android.content.Intent(context, GlassesMainActivity::class.java)
                     context.startActivity(intent, options)
                 } catch (e: Exception) {
                     Log.e("NotesOverviewScreen", "Error launching glasses", e)
@@ -237,7 +227,10 @@ private fun NoteItemForeground(note: Note, onSendNote: (Note) -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(id = R.string.note_timestamp, dateFormat.format(note.timestamp)),
+                text = stringResource(
+                    id = R.string.note_timestamp,
+                    dateFormat.format(note.timestamp)
+                ),
                 style = MaterialTheme.typography.labelSmall
             )
             Text(
@@ -348,7 +341,7 @@ private fun AddNoteDialog(
 @PreviewLightDark
 @Composable
 private fun NotesOverviewContentPreview() {
-    AppfunctionsglassessampleTheme {
+    MaterialTheme {
         NotesOverviewContent(
             uiState = NotesOverviewUiState(
                 notes = listOf(
@@ -378,7 +371,7 @@ private fun NotesOverviewContentPreview() {
 @PreviewLightDark
 @Composable
 private fun NotesOverviewContentEmptyPreview() {
-    AppfunctionsglassessampleTheme {
+    MaterialTheme {
         NotesOverviewContent(
             uiState = NotesOverviewUiState(notes = emptyList()),
             onAddNote = { _, _ -> },

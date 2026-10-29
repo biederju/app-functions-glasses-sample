@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">app-functions-glasses-sample</string>
+    <string name="app_name">GlassyNotes</string>
     <string name="hello_ai_glasses">Hello, Display Glasses!</string>
     <string name="launch">Launch</string>
     <string name="status_prefix">Status:</string>
@@ -7,4 +7,13 @@
     <string name="status_disconnected">Disconnected</string>
     <string name="unsupported_android_version">This version of Android is not supported</string>
     <string name="close">Close</string>
+    <string name="fab_add_note">Add note</string>
+    <string name="dialog_add_note_title">Add note</string>
+    <string name="dialog_add_note_topic_hint">Topic</string>
+    <string name="dialog_add_note_text_hint">Text</string>
+    <string name="dialog_add_note_cancel">Cancel</string>
+    <string name="dialog_add_note_save">Save</string>
+    <string name="empty_notes">No notes yet</string>
+    <string name="note_timestamp">%s</string>
+    <string name="delete_note">Delete note</string>
 </resources>

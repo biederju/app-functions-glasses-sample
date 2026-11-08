@@ -1,6 +1,7 @@
 When creating a Glimmer Card component, refer to the following implementation
 samples in `CardSamples.kt`:
 
+
 ```kotlin
 /*
  * Copyright 2025 The Android Open Source Project

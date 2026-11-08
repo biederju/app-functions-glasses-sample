@@ -1,6 +1,7 @@
 When creating a Glimmer Stack component, refer to the following source code in
 `Stack.kt`:
 
+
 ```kotlin
 /*
  * Copyright 2025 The Android Open Source Project

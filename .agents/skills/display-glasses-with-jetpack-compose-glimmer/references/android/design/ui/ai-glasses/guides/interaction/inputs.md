@@ -31,39 +31,40 @@ frame.](https://developer.android.com/static/images/design/ui/glasses/guides/gla
 
 ### Audio glasses
 
-| Input              | Gesture        | Interaction affect     |
-|--------------------|----------------|------------------------|
-| Touchpad (1)       | Tap            | Play / Pause / Confirm |
-|                    | Swipe          | Next/Previous/Dismiss  |
-|                    | Swipe down     | N/A                    |
-|                    | Touch \& hold  | Invoke AI              |
-|                    | 2-finger swipe | Volume                 |
-| Display button (2) | Press          | N/A                    |
-| Camera button (3)  | Press          | Photo / Video end      |
-|                    | Touch \& hold  | Video start            |
-|                    | Double press   | Camera                 |
+
+| Input | Gesture | Interaction affect |
+|---|---|---|
+| Touchpad (1) | Tap | Play / Pause / Confirm |
+|   | Swipe | Next/Previous/Dismiss |
+|   | Swipe down | N/A |
+|   | Touch \& hold | Invoke AI |
+|   | 2-finger swipe | Volume |
+| Display button (2) | Press | N/A |
+| Camera button (3) | Press | Photo / Video end |
+|   | Touch \& hold | Video start |
+|   | Double press | Camera |
 
 <br />
 
 ### Display glasses
 
-| Input              | Gesture        | Interaction affect     |
-|--------------------|----------------|------------------------|
-| Touchpad (1)       | Tap            | Play / Pause / Confirm |
-|                    | Swipe          | UI Navigation          |
-|                    | Swipe down     | Back                   |
-|                    | Touch \& hold  | Invoke AI              |
-|                    | 2-finger swipe | Volume                 |
-| Display button (2) | Press          | Wake/Sleep             |
-| Camera button (3)  | Press          | Photo / Video end      |
-|                    | Touch \& hold  | Video start            |
-|                    | Double press   | Camera                 |
+
+| Input | Gesture | Interaction affect |
+|---|---|---|
+| Touchpad (1) | Tap | Play / Pause / Confirm |
+|   | Swipe | UI Navigation |
+|   | Swipe down | Back |
+|   | Touch \& hold | Invoke AI |
+|   | 2-finger swipe | Volume |
+| Display button (2) | Press | Wake/Sleep |
+| Camera button (3) | Press | Photo / Video end |
+|   | Touch \& hold | Video start |
+|   | Double press | Camera |
 
 <br />
 
 ![Design elements should be anchored to the bottom of the
-frame.](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_ixd_inputs_focus.png)
-On
+frame.](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_ixd_inputs_focus.png) On
 display focus states have a visual affordances.
 
 ## Usability principles
@@ -79,8 +80,7 @@ precise controls.
 
 ### Do
 
-Design around fast gestures that don't feel out of place while a user is out and
-about. ![](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_input_complex_dont.webp)
+Design around fast gestures that don't feel out of place while a user is out and about. ![](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_input_complex_dont.webp)
 
 ### Don't
 
@@ -94,8 +94,7 @@ of existing user mental models.
 
 ### Do
 
-Provide UI elements for users to complete actions when the display is
-available. ![](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_input_recognition_dont.webp)
+Provide UI elements for users to complete actions when the display is available. ![](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_input_recognition_dont.webp)
 
 ### Don't
 
@@ -127,8 +126,7 @@ Help users avoid mistakes by:
 
 ### Do
 
-Put initial focus on a lower-cost action, like accepting a
-call. ![](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_input_error_dont.webp)
+Put initial focus on a lower-cost action, like accepting a call. ![](https://developer.android.com/static/images/design/ui/glasses/guides/glasses_input_error_dont.webp)
 
 ### Don't
 

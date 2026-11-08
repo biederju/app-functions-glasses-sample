@@ -1,6 +1,7 @@
 When creating a Glimmer Title Chip component, refer to the following
 implementation samples in `TitleChipSamples.kt`:
 
+
 ```kotlin
 /*
  * Copyright 2025 The Android Open Source Project

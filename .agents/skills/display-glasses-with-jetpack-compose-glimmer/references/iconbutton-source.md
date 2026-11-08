@@ -1,6 +1,7 @@
 When creating a Glimmer Icon component, refer to the following source code in
 `IconButton.kt` for icon buttons:
 
+
 ```kotlin
 /*
  * Copyright 2026 The Android Open Source Project

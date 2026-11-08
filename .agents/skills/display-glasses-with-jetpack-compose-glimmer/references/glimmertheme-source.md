@@ -1,6 +1,7 @@
 When implementing Glimmer styles, refer to the following source code in
 `GlimmerTheme.kt`:
 
+
 ```kotlin
 /*
  * Copyright 2025 The Android Open Source Project

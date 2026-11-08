@@ -1,6 +1,7 @@
 When creating a `Typography` instance with the Google Sans Flex configuration,
 refer to the following source code in `GoogleSansFlexTypography.kt`:
 
+
 ```kotlin
 /*
  * Copyright 2026 The Android Open Source Project

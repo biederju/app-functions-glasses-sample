@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.BIND_APP_FUNCTION_SERVICE" />
+
     <application
         android:name=".AppFunctionsGlassesSampleApplication"
         android:allowBackup="true"
@@ -11,6 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Appfunctionsglassessample">
+        <property
+            android:name="android.app.appfunctions.app_metadata"
+            android:resource="@xml/app_metadata" />
+
         <activity
             android:name=".glasses.GlassesMainActivity"
             android:exported="true"
@@ -35,6 +41,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".ai.NotesGlasses"
+            android:exported="true"
+            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE">
+            <intent-filter>
+                <action android:name="android.app.appfunctions.AppFunctionService" />
+            </intent-filter>
+
+            <property
+                android:name="android.app.appfunctions.schema"
+                android:value="com.google.android.libraries.assist.appfunction.appmetadata.AppFunctionServiceMetadata" />
+            <property
+                android:name="android.app.appfunctions.schema_v2"
+                android:value="com.google.android.libraries.assist.appfunction.appmetadata.AppFunctionServiceMetadataV2" />
+        </service>
     </application>
 
 </manifest>

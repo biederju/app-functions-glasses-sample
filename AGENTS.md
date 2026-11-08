@@ -34,15 +34,6 @@
 * **Dependencies:** Prefer the latest **stable** versions of libraries. Pre-releases
   (experimental/canary/alpha) are allowed when necessary, since this is a sample app for pre-release
   features (e.g. XR, Glimmer, Projected, App Functions).
-  > [!WARNING] **Dependency bump blocker**
-  > As of this alignment pass, bumping any AndroidX dependency (e.g. `core-ktx`,
-  > `activity-compose`, `datastore-preferences`, `kotlinx-serialization-json`) to their
-  > latest stable versions triggers resolution of **kotlin-stdlib 2.4.10** (metadata v2.4.0),
-  > which is incompatible with the project's Kotlin compiler `2.2.10` (reads up to v2.3.0).
-  > This is likely caused by `composeBom 2026.03.01` already pulling kotlin-stdlib 2.4.x
-  > transitively. **All library version bumps are blocked** until the project migrates to
-  > **Kotlin 2.4.x+** (a separate plan). This does not affect Hilt, Glimmer, Projected, or
-  > other dependencies that already use stable, compatible versions.
 
 ## Language & Documentation Rules
 

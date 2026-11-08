@@ -17,8 +17,18 @@ plugins {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
+        google() {
+            content {
+                includeGroupByRegex("androidx\\..*")
+                includeGroupByRegex("com\\..*")
+            }
+        }
         mavenCentral()
+        maven("https://androidx.dev/snapshots/builds/12476373/artifacts/repository") {
+            content {
+                includeGroupByRegex("androidx\\..*")
+            }
+        }
     }
 }
 

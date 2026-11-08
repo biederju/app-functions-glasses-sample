@@ -132,8 +132,8 @@ private fun NoteActionCard(
     val dateFormat = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.US)
 
     ActionCard(
-        header = { Text(text = dateFormat.format(note.timestamp)) },
         title = { Text(text = note.topic) },
+        subtitle = { Text(text = dateFormat.format(note.timestamp)) },
         action = {
             Button(onClick = onDismiss) {
                 Text(text = stringResource(id = R.string.dismiss_note_card))

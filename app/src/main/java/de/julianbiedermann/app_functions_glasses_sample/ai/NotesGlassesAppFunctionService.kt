@@ -1,10 +1,9 @@
 package de.julianbiedermann.app_functions_glasses_sample.ai
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.util.Log
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionElementNotFoundException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionService
@@ -14,8 +13,8 @@ import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
 import de.julianbiedermann.app_functions_glasses_sample.models.Note
@@ -49,18 +48,18 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
      * Reads the latest [count] notes (sorted by timestamp descending) from the notes repository,
      * enqueues them into the glasses queue, and launches the glasses projected activity.
      *
-     * @param count The number of latest notes to display. Must be >= 1. Defaults to 3 when omitted.
+     * @param count The number of latest notes to display. Defaults to 3 when omitted or when
+     *              a value less than 1 is supplied.
      * @return [ShowNotesResult] describing how many notes were enqueued.
-     * @throws AppFunctionInvalidArgumentException If [count] is less than 1.
      * @throws AppFunctionElementNotFoundException If no notes exist in the repository.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun showLatestNotes(
         count: Int = 3,
     ): ShowNotesResult = withContext(Dispatchers.IO) {
-        if (count < 1) {
-            throw AppFunctionInvalidArgumentException("count must be >= 1, got $count")
-        }
+        // When the agent omits [count], the library passes the empty value (0), not the
+        // declared default of 3. Resolve the meaningful default here.
+        val effectiveCount = count.takeIf { it > 0 } ?: 3
 
         val (notesRepo, sentNotesRepo) = getInjectors()
         val allNotes = notesRepo.notes.first()
@@ -69,10 +68,10 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
             throw AppFunctionElementNotFoundException("No notes exist in the repository")
         }
 
-        val selected = allNotes.take(count)
-        Log.d(TAG, "showLatestNotes: enqueueing ${selected.size} notes (requested $count)")
+        val selected = allNotes.take(effectiveCount)
+        Log.d(TAG, "showLatestNotes: enqueueing ${selected.size} notes (requested $effectiveCount)")
 
-        enqueueNotes(selected, notesRepo, sentNotesRepo)
+        enqueueNotes(selected, sentNotesRepo)
         ShowNotesResult(count = selected.size)
     }
 
@@ -88,7 +87,7 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
      * @throws AppFunctionInvalidArgumentException If [query] is blank.
      * @throws AppFunctionElementNotFoundException If no notes match the query.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun searchNotesOnGlasses(
         query: String,
     ): ShowNotesResult = withContext(Dispatchers.IO) {
@@ -115,14 +114,13 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
         }
 
         Log.d(TAG, "searchNotesOnGlasses: enqueueing ${matching.size} notes matching '$query'")
-        enqueueNotes(matching, notesRepo, sentNotesRepo)
+        enqueueNotes(matching, sentNotesRepo)
         ShowNotesResult(count = matching.size)
     }
 
     @OptIn(ExperimentalProjectedApi::class)
     private suspend fun enqueueNotes(
         notes: List<Note>,
-        notesRepo: NotesRepository,
         sentNotesRepo: SentNotesRepository
     ) {
         notes.forEach { note: Note ->

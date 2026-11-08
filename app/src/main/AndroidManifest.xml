@@ -5,9 +5,6 @@
 
     <application
         android:name=".AppFunctionsGlassesSampleApplication"
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -20,7 +17,6 @@
         <activity
             android:name=".glasses.GlassesMainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:launchMode="singleTop"
             android:requiredDisplayCategory="android.hardware.display.category.XR_PROJECTED">
             <intent-filter>
@@ -32,7 +28,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Appfunctionsglassessample"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -52,10 +47,10 @@
 
             <property
                 android:name="android.app.appfunctions.schema"
-                android:value="com.google.android.libraries.assist.appfunction.appmetadata.AppFunctionServiceMetadata" />
+                android:value="app_functions_schema.xsd" />
             <property
-                android:name="android.app.appfunctions.schema_v2"
-                android:value="com.google.android.libraries.assist.appfunction.appmetadata.AppFunctionServiceMetadataV2" />
+                android:name="android.app.appfunctions.v2"
+                android:value="notes_glasses_app_function_service.xml" />
         </service>
     </application>
 

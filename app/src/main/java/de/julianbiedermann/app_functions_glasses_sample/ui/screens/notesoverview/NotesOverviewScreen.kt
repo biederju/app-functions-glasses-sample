@@ -1,6 +1,5 @@
-package de.julianbiedermann.app_functions_glasses_sample.ui.notesoverview
+package de.julianbiedermann.app_functions_glasses_sample.ui.screens.notesoverview
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,7 +52,8 @@ import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import de.julianbiedermann.app_functions_glasses_sample.R
 import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
+import timber.log.Timber
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalProjectedApi::class)
@@ -83,7 +83,7 @@ internal fun NotesOverviewScreen(
                     val intent = android.content.Intent(context, GlassesMainActivity::class.java)
                     context.startActivity(intent, options)
                 } catch (e: Exception) {
-                    Log.e("NotesOverviewScreen", "Error launching glasses", e)
+                    Timber.e(e, "Error launching glasses")
                 }
             }
         },

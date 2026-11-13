@@ -1,6 +1,6 @@
-package de.julianbiedermann.app_functions_glasses_sample.repositories.notes
+package de.julianbiedermann.app_functions_glasses_sample.domain.notes
 
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
 import kotlinx.coroutines.flow.Flow
 
 internal interface NotesRepository {

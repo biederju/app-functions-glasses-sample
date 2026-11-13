@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import dagger.hilt.android.AndroidEntryPoint
-import de.julianbiedermann.app_functions_glasses_sample.ui.notesoverview.NotesOverviewScreen
+import de.julianbiedermann.app_functions_glasses_sample.ui.screens.notesoverview.NotesOverviewScreen
 
 @AndroidEntryPoint
 internal class MainActivity : ComponentActivity() {

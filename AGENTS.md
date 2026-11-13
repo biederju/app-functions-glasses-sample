@@ -21,8 +21,8 @@
     - **Glasses UI:** Jetpack Compose Glimmer
 - **Dependency Injection:** Hilt
 - **Integration:** Android App Functions / AppSearch
-- **Storage:** DataStore (storing notes list with `kotlinx.serialization`; **No local databases like
-  Room**)
+- **Storage:** DataStore (file-backed, key-value-free `DataStore<NoteList>` with custom JSON
+  serializer; **No Preferences DataStore**, Room, or SQLite)
 - **Navigation:** Simplified navigation (avoiding complex navigation graphs or navigation libraries
   unless strictly required)
 - **Unit Testing:** None by default (Do not write tests unless explicitly requested)
@@ -67,12 +67,26 @@
       create the task tracking file, and implement.
     - **Minor Fixes / Improvements / Refinements:** Proceed directly to code implementation without
       a new plan, but update existing task tracking files accordingly.
-- **Mandatory Post-Change Verification:**
-    - Run `./gradlew assembleDebug` to confirm successful build.
-    - Run `./gradlew lintDebug` (warnings are ok, errors are not).
-    - Self-Correction: Fix root causes precisely if verification fails. Do not apply blind
-      workarounds.
-    - Keep `AGENTS.md` updated whenever new architectural decisions are made.
+
+## Mandatory Post-Change Verification
+
+- Run `./gradlew assembleDebug` to confirm successful build.
+- Run `./gradlew lintDebug` (warnings are ok, errors are not).
+- **UI Verification (`android` CLI):** For changes that affect the UI (screens, components,
+  glasses experience, or any feature verifiable through the UI), verify on a connected
+  device/emulator using the `android` CLI / `adb`:
+    1. Deploy & launch the app (e.g. `android run`, or `adb shell am start`).
+    2. Inspect the UI: `android layout` to dump the UI tree (text, resource-ids,
+       content-desc, interactions, bounds), and `android screen capture -o <file>`
+       (optionally `--annotate`) to visually confirm content not present in the dump.
+    3. Interact via `adb shell input <tap|swipe|text|keyevent>` (focus text fields first,
+       use `%s` for spaces).
+    4. Confirm expected UI state appears (elements/text visible, no crash/anr).
+    5. For glasses (XR) flows, use a glasses-enabled AVD with the same
+       layout/screen/input primitives.
+- Self-Correction: Fix root causes precisely if verification fails. Do not apply blind
+  workarounds.
+- Keep `AGENTS.md` updated whenever new architectural decisions are made.
 
 ## Version Control & Git Hygiene
 
@@ -108,14 +122,17 @@
 
 Organize package structures logically by feature:
 
+- `ai` – App Functions services and entry points.
 - `di` – Hilt dependency injection modules.
-- `data/storage` – Preferences DataStore implementation and JSON serialization.
-- `domain/` – Repositories and models.
-- `ui/screens` – Screen-level composables and ViewModels.
+- `data/storage` – File-backed DataStore serializer (`NoteListSerializer`) and `NoteList` data
+  class.
+- `domain/models` – Domain models (e.g., `Note`).
+- `domain/notes` – Notes domain logic (`NotesRepository`, `NotesRepositoryImpl`).
+- `domain/sentnotes` – Sent notes domain logic (`SentNotesRepository`, `SentNotesRepositoryImpl`).
+- `glasses` – Glasses-specific activities (`GlassesMainActivity`), composables, and helpers
+  (`AudioInterface`).
+- `ui/screens` – Screen-level composables and ViewModels (e.g., `ui/screens/notesoverview/`).
 - `ui/components` – Reusable UI composables shared across screens.
-- `ui/navigation` – Simple navigation routing if needed.
-- `extensions` – Extension functions organized in dedicated files named after receiver type (e.g.,
-  `ContextExtensions.kt`).
 
 ## UI & Composables
 
@@ -178,3 +195,5 @@ Organize package structures logically by feature:
   comments; code should be self-documenting.
 - Log meaningful, structured log messages (using Timber) to trace key
   events, state changes, or App Function triggers.
+- Use Timber format-string placeholders (`%s`, `%d`) for string interpolation in log messages
+  to avoid unnecessary string concatenation when logging is disabled.

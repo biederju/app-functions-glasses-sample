@@ -2,7 +2,6 @@ package de.julianbiedermann.app_functions_glasses_sample.ai
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.util.Log
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionService
@@ -15,13 +14,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.notes.NotesRepository
+import de.julianbiedermann.app_functions_glasses_sample.domain.sentnotes.SentNotesRepository
 import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
-import de.julianbiedermann.app_functions_glasses_sample.repositories.notes.NotesRepository
-import de.julianbiedermann.app_functions_glasses_sample.repositories.sentnotes.SentNotesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import kotlin.coroutines.coroutineContext
 
 /**
@@ -36,10 +36,6 @@ import kotlin.coroutines.coroutineContext
     appFunctionXmlFileName = "notes_glasses_app_function_service",
 )
 abstract class NotesGlassesAppFunctionService : AppFunctionService() {
-
-    private companion object {
-        const val TAG = "NotesGlassesAppFuncSvc"
-    }
 
     /**
      * Show the N most recent notes on the connected display glasses.
@@ -62,12 +58,16 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
         val (notesRepo, sentNotesRepo) = getInjectors()
         val allNotes = notesRepo.notes.first()
         if (allNotes.isEmpty()) {
-            Log.w(TAG, "Cannot show latest notes: repository is empty")
+            Timber.w("Cannot show latest notes: repository is empty")
             return@withContext ShowNotesResult(count = 0)
         }
 
         val selected = allNotes.take(effectiveCount)
-        Log.d(TAG, "showLatestNotes: enqueueing ${selected.size} notes (requested $effectiveCount)")
+        Timber.d(
+            "showLatestNotes: enqueueing %d notes (requested %d)",
+            selected.size,
+            effectiveCount
+        )
 
         enqueueNotes(selected, sentNotesRepo)
         ShowNotesResult(count = selected.size)
@@ -95,7 +95,7 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
         val (notesRepo, sentNotesRepo) = getInjectors()
         val allNotes = notesRepo.notes.first()
         if (allNotes.isEmpty()) {
-            Log.w(TAG, "Cannot search notes: repository is empty")
+            Timber.w("Cannot search notes: repository is empty")
             return@withContext ShowNotesResult(count = 0)
         }
 
@@ -106,11 +106,11 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
         }
 
         if (matching.isEmpty()) {
-            Log.w(TAG, "searchNotesOnGlasses: no notes match query '$query'")
+            Timber.w("searchNotesOnGlasses: no notes match query '$query'")
             return@withContext ShowNotesResult(count = 0)
         }
 
-        Log.d(TAG, "searchNotesOnGlasses: enqueueing ${matching.size} notes matching '$query'")
+        Timber.d("searchNotesOnGlasses: enqueueing %d notes matching '%s'", matching.size, query)
         enqueueNotes(matching, sentNotesRepo)
         ShowNotesResult(count = matching.size)
     }
@@ -136,15 +136,12 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
                 val intent = Intent(applicationContext, GlassesMainActivity::class.java)
                 intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
                 startActivity(this@NotesGlassesAppFunctionService, intent, options)
-                Log.d(TAG, "Launched glasses activity with ${notes.size} notes")
+                Timber.d("Launched glasses activity with %d notes", notes.size)
             } else {
-                Log.w(
-                    TAG,
-                    "Projected device not connected; notes enqueued but glasses not launched"
-                )
+                Timber.w("Projected device not connected; notes enqueued but glasses not launched")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to launch glasses activity", e)
+            Timber.e(e, "Failed to launch glasses activity")
             // Notes are already enqueued; graceful degradation - the glasses will see them on next open.
         }
     }

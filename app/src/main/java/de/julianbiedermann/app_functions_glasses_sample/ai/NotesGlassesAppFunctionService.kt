@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.util.Log
 import androidx.appfunctions.AppFunctionDeclaration
-import androidx.appfunctions.AppFunctionElementNotFoundException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
@@ -50,8 +49,7 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
      *
      * @param count The number of latest notes to display. Defaults to 3 when omitted or when
      *              a value less than 1 is supplied.
-     * @return [ShowNotesResult] describing how many notes were enqueued.
-     * @throws AppFunctionElementNotFoundException If no notes exist in the repository.
+     * @return [ShowNotesResult] describing how many notes were enqueued, or 0 if the repository is empty.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun showLatestNotes(
@@ -65,7 +63,7 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
         val allNotes = notesRepo.notes.first()
         if (allNotes.isEmpty()) {
             Log.w(TAG, "Cannot show latest notes: repository is empty")
-            throw AppFunctionElementNotFoundException("No notes exist in the repository")
+            return@withContext ShowNotesResult(count = 0)
         }
 
         val selected = allNotes.take(effectiveCount)
@@ -83,9 +81,8 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
      * matching notes into the glasses queue, and launches the glasses projected activity.
      *
      * @param query The search string to match against note titles and text. Must be non-empty.
-     * @return [ShowNotesResult] describing how many matching notes were enqueued.
+     * @return [ShowNotesResult] describing how many matching notes were enqueued, or 0 if none match.
      * @throws AppFunctionInvalidArgumentException If [query] is blank.
-     * @throws AppFunctionElementNotFoundException If no notes match the query.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun searchNotesOnGlasses(
@@ -99,7 +96,7 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
         val allNotes = notesRepo.notes.first()
         if (allNotes.isEmpty()) {
             Log.w(TAG, "Cannot search notes: repository is empty")
-            throw AppFunctionElementNotFoundException("No notes exist in the repository")
+            return@withContext ShowNotesResult(count = 0)
         }
 
         val queryLower = query.lowercase()
@@ -110,7 +107,7 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
 
         if (matching.isEmpty()) {
             Log.w(TAG, "searchNotesOnGlasses: no notes match query '$query'")
-            throw AppFunctionElementNotFoundException("No notes match the query '$query'")
+            return@withContext ShowNotesResult(count = 0)
         }
 
         Log.d(TAG, "searchNotesOnGlasses: enqueueing ${matching.size} notes matching '$query'")

@@ -1,7 +1,6 @@
 package de.julianbiedermann.app_functions_glasses_sample.glasses
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -32,8 +31,9 @@ import androidx.xr.glimmer.pager.GlimmerHorizontalPager
 import androidx.xr.glimmer.pager.rememberGlimmerPagerState
 import dagger.hilt.android.AndroidEntryPoint
 import de.julianbiedermann.app_functions_glasses_sample.R
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
-import de.julianbiedermann.app_functions_glasses_sample.repositories.sentnotes.SentNotesRepository
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.sentnotes.SentNotesRepository
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -48,7 +48,7 @@ internal class GlassesMainActivity : ComponentActivity() {
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        Timber.d("onCreate")
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = true
         audioInterface = AudioInterface(
             context = this,
@@ -73,7 +73,7 @@ internal class GlassesMainActivity : ComponentActivity() {
                             onDismissNote = { noteId ->
                                 sentNotesRepository.dismissNote(noteId = noteId)
                                 audioInterface.speak(textToSpeak = dismissedText)
-                                if(sentNotes.size == 1) {
+                                if (sentNotes.size == 1) {
                                     finish()
                                 }
                             },
@@ -85,10 +85,6 @@ internal class GlassesMainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "GlassesMainActivity"
     }
 }
 
@@ -132,8 +128,8 @@ private fun NoteActionCard(
     val dateFormat = SimpleDateFormat("MMM d, yyyy HH:mm", Locale.US)
 
     ActionCard(
-        header = { Text(text = dateFormat.format(note.timestamp)) },
         title = { Text(text = note.topic) },
+        subtitle = { Text(text = dateFormat.format(note.timestamp)) },
         action = {
             Button(onClick = onDismiss) {
                 Text(text = stringResource(id = R.string.dismiss_note_card))

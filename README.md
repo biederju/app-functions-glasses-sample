@@ -25,5 +25,23 @@ All showcase features are built around a hands-free note-taking workflow.
 1. Clone the repository and open the project in Android Studio.
 2. [Create a display glasses emulator and pair it with a compatible phone emulator.](https://developer.android.com/develop/xr/jetpack-xr-sdk/run/create-avds/glasses)
 3. Build and run the debug configuration of the app on both emulators.
+4. **Test App Functions** — verify the functions are registered and working:
+
+```bash
+# List all registered functions (should return both functions)
+adb -s <device> shell cmd app_function list-app-functions --package de.julianbiedermann.app_functions_glasses_sample
+
+# Show the 3 latest notes (omit count for default)
+adb -s <device> shell cmd app_function execute-app-function \
+  --package de.julianbiedermann.app_functions_glasses_sample \
+  --function 'de.julianbiedermann.app_functions_glasses_sample.ai.NotesGlassesAppFunctionService#showLatestNotes' \
+  --parameters '{}'
+
+# Search notes containing "groceries"
+adb -s <device> shell cmd app_function execute-app-function \
+  --package de.julianbiedermann.app_functions_glasses_sample \
+  --function 'de.julianbiedermann.app_functions_glasses_sample.ai.NotesGlassesAppFunctionService#searchNotesOnGlasses' \
+  --parameters '{"query":"groceries"}'
+```
 
 For technical project specifications please refer to [AGENTS.md](./AGENTS.md).

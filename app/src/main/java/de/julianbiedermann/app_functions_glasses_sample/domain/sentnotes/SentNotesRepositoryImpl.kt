@@ -1,15 +1,13 @@
-package de.julianbiedermann.app_functions_glasses_sample.repositories.sentnotes
+package de.julianbiedermann.app_functions_glasses_sample.domain.sentnotes
 
-import android.util.Log
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private const val TAG = "SentNotesRepositoryImpl"
 
 @Singleton
 internal class SentNotesRepositoryImpl @Inject constructor() : SentNotesRepository {
@@ -19,11 +17,11 @@ internal class SentNotesRepositoryImpl @Inject constructor() : SentNotesReposito
 
     override fun addNote(note: Note) {
         _sentNotes.update { current -> (current.filterNot { it.id == note.id }) + note }
-        Log.d(TAG, "Added note to glasses queue: ${note.topic}")
+        Timber.d("Added note to glasses queue: %s", note.topic)
     }
 
     override fun dismissNote(noteId: String) {
         _sentNotes.update { current -> current.filterNot { it.id == noteId } }
-        Log.d(TAG, "Dismissed note from glasses queue: $noteId")
+        Timber.d("Dismissed note from glasses queue: %s", noteId)
     }
 }

@@ -77,34 +77,29 @@ The following concrete deviations from AGENTS.md were found during analysis:
 
 ### Component: Dependency Versions (latest stable)
 
-The following catalog entries are **behind** the current stable release (verified via
-`version_lookup`). Bumping them keeps the project aligned with AGENTS.md's "prefer latest
-stable" rule:
+The following catalog entries have been **successfully bumped** to their latest stable release
+(verified via `version_lookup` and `./gradlew assembleDebug`):
 
-| Catalog entry (`libs.versions.toml`) | Current in catalog | Latest stable | Action                                                              |
-|--------------------------------------|--------------------|---------------|---------------------------------------------------------------------|
-| `coreKtx`                            | `1.10.1`           | `1.19.1`      | **Reverted** — kotlin-stdlib 2.4.10 incompatible with Kotlin 2.2.10 |
-| `activityCompose`                    | `1.8.0`            | `1.13.0`      | **Reverted** — kotlin-stdlib 2.4.10 incompatible with Kotlin 2.2.10 |
-| `datastorePreferences`               | `1.2.1`            | `1.3.0`       | **Reverted** — kotlin-stdlib 2.4.10 pulled via transitive deps      |
-| `kotlinxSerialization`               | `1.11.0`           | `1.12.0`      | **Reverted** — kotlin-stdlib 2.4.10 pulled via transitive deps      |
-| `hilt`                               | `2.60.1`           | `2.60.1`      | Already current                                                     |
-| `lifecycleViewModelCompose`          | `2.11.0`           | `2.11.0`      | Already current                                                     |
-| `hiltNavigationCompose`              | `1.4.0`            | `1.4.0`       | Already current                                                     |
-| `hilt`                               | `2.60.1`           | `2.60.1`      | Already current                                                     |
-| `lifecycleViewModelCompose`          | `2.11.0`           | `2.11.0`      | Already current                                                     |
-| `hiltNavigationCompose`              | `1.4.0`            | `1.4.0`       | Already current                                                     |
+| Catalog entry (`libs.versions.toml`) | Current in catalog | Latest stable | Action                                                               |
+|--------------------------------------|--------------------|---------------|----------------------------------------------------------------------|
+| `coreKtx`                            | `1.10.1`           | `1.19.1`      | **Bumped** — kotlin-stdlib compatibility resolved with Kotlin 2.4.21 |
+| `activityCompose`                    | `1.8.0`            | `1.13.0`      | **Bumped** — kotlin-stdlib compatibility resolved with Kotlin 2.4.21 |
+| `datastorePreferences`               | `1.2.1`            | `1.3.0`       | **Bumped** — kotlin-stdlib compatibility resolved with Kotlin 2.4.21 |
+| `kotlinxSerialization`               | `1.11.0`           | `1.12.0`      | **Bumped** — kotlin-stdlib compatibility resolved with Kotlin 2.4.21 |
+| `hilt`                               | `2.60.1`           | `2.60.1`      | Already current                                                      |
+| `lifecycleViewModelCompose`          | `2.11.0`           | `2.11.0`      | Already current                                                      |
+| `hiltNavigationCompose`              | `1.4.0`            | `1.4.0`       | Already current                                                      |
+| `hilt`                               | `2.60.1`           | `2.60.1`      | Already current                                                      |
+| `lifecycleViewModelCompose`          | `2.11.0`           | `2.11.0`      | Already current                                                      |
+| `hiltNavigationCompose`              | `1.4.0`            | `1.4.0`       | Already current                                                      |
 
 #### [MODIFY] [libs.versions.toml](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/gradle/libs.versions.toml)
 
-- **All version bumps reverted.** Every attempted bump (`coreKtx`, `activityCompose`,
-  `datastorePreferences`, `kotlinxSerialization`) triggered resolution of kotlin-stdlib 2.4.10
-  (metadata v2.4.0), which is incompatible with the project's Kotlin compiler `2.2.10` (reads
-  up to v2.3.0).
-- This is likely because `composeBom 2026.03.01` already pulls kotlin-stdlib 2.4.x transitively,
-  and any new library version adds an additional path to stdlib 2.4.10. The root cause is that
-  **Kotlin 2.2.10 cannot read kotlin-stdlib 2.4.0+ metadata** — a separate Kotlin version
-  upgrade plan (e.g. to Kotlin 2.4.x) is required before any AndroidX dependency can be safely
-  bumped to their latest stable.
+- **All version bumps applied successfully.** The project migrated from Kotlin `2.2.10` to `2.4.21`,
+  which resolves the kotlin-stdlib 2.4.x metadata compatibility issue.
+- Additional bumps: AGP `9.5.0` → `9.5.1`, Compose BOM `2026.03.01` → `2026.09.00`, Glimmer
+  `1.0.0-alpha15` → `1.0.0-alpha22`, Projected `1.0.0-alpha10` → `1.0.0-alpha14`, KSP
+  `2.2.10-2.0.2` → `2.3.11`.
 
 #### [MODIFY] [app/build.gradle.kts](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/build.gradle.kts)
 
@@ -150,8 +145,9 @@ All **multi-parameter** composable calls already use named arguments (e.g., `Ale
 
 - After bumping `coreKtx` / `activityCompose` / `datastorePreferences` / `kotlinxSerialization`,
   run `./gradlew assembleDebug` and confirm compilation still succeeds.
-- **Fallback:** if a bump breaks compilation with no small fix available, revert that specific
-  version, keep the rest, and flag the reverted bump to the user.
+- **Result:** All bumps applied successfully. Kotlin upgraded to `2.4.21` which resolves the
+  kotlin-stdlib 2.4.x metadata compatibility issue. `./gradlew assembleDebug` and
+  `./gradlew lintDebug` both pass.
 
 ### Manual Verification
 

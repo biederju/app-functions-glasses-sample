@@ -1,12 +1,11 @@
-package de.julianbiedermann.app_functions_glasses_sample.ui.notesoverview
+package de.julianbiedermann.app_functions_glasses_sample.ui.screens.notesoverview
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
-import de.julianbiedermann.app_functions_glasses_sample.repositories.notes.NotesRepository
-import de.julianbiedermann.app_functions_glasses_sample.repositories.sentnotes.SentNotesRepository
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.notes.NotesRepository
+import de.julianbiedermann.app_functions_glasses_sample.domain.sentnotes.SentNotesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -14,9 +13,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
-
-private const val TAG = "NotesOverviewViewModel"
 
 @HiltViewModel
 internal class NotesOverviewViewModel @Inject constructor(
@@ -26,10 +24,10 @@ internal class NotesOverviewViewModel @Inject constructor(
 
     val uiState: StateFlow<NotesOverviewUiState> = repository.notes
         .onStart {
-            Log.d(TAG, "Loading notes from DataStore")
+            Timber.d("Loading notes from DataStore")
         }
         .catch { e ->
-            Log.e(TAG, "Error loading notes", e)
+            Timber.e(e, "Error loading notes")
             emit(emptyList())
         }
         .map { notes ->
@@ -46,7 +44,7 @@ internal class NotesOverviewViewModel @Inject constructor(
             try {
                 repository.addNote(topic, text)
             } catch (e: Exception) {
-                Log.e(TAG, "Error adding note", e)
+                Timber.e(e, "Error adding note")
             }
         }
     }
@@ -56,7 +54,7 @@ internal class NotesOverviewViewModel @Inject constructor(
             try {
                 repository.deleteNote(noteId)
             } catch (e: Exception) {
-                Log.e(TAG, "Error deleting note", e)
+                Timber.e(e, "Error deleting note")
             }
         }
     }
@@ -65,7 +63,7 @@ internal class NotesOverviewViewModel @Inject constructor(
         try {
             sentNotesRepository.addNote(note)
         } catch (e: Exception) {
-            Log.e(TAG, "Error sending note to glasses", e)
+            Timber.e(e, "Error sending note to glasses")
         }
     }
 }

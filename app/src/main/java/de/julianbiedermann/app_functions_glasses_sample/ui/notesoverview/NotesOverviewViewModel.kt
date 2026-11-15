@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import de.julianbiedermann.app_functions_glasses_sample.repositories.NotesRepository
+import de.julianbiedermann.app_functions_glasses_sample.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.repositories.notes.NotesRepository
+import de.julianbiedermann.app_functions_glasses_sample.repositories.sentnotes.SentNotesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -18,7 +20,8 @@ private const val TAG = "NotesOverviewViewModel"
 
 @HiltViewModel
 internal class NotesOverviewViewModel @Inject constructor(
-    private val repository: NotesRepository
+    private val repository: NotesRepository,
+    private val sentNotesRepository: SentNotesRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<NotesOverviewUiState> = repository.notes
@@ -55,6 +58,14 @@ internal class NotesOverviewViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting note", e)
             }
+        }
+    }
+
+    fun sendNoteToGlasses(note: Note) {
+        try {
+            sentNotesRepository.addNote(note)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error sending note to glasses", e)
         }
     }
 }

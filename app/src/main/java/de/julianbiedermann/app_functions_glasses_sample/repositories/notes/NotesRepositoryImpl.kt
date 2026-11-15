@@ -1,17 +1,16 @@
-package de.julianbiedermann.app_functions_glasses_sample.repositories
+package de.julianbiedermann.app_functions_glasses_sample.repositories.notes
 
-import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import de.julianbiedermann.app_functions_glasses_sample.models.Note
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,7 +46,7 @@ internal class NotesRepositoryImpl @Inject constructor(
 
     override suspend fun addNote(topic: String, text: String) {
         val note = Note(
-            id = java.util.UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(),
             topic = topic,
             text = text,
             timestamp = System.currentTimeMillis()

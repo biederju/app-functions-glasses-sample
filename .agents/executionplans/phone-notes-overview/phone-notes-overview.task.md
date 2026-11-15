@@ -1,24 +1,36 @@
 # Phone Notes Overview — Task Tracking
 
-- [x] 1. Build & Dependency Layer
-  - [x] Update `libs.versions.toml` with Hilt, KSP, DataStore, serialization, lifecycle versions
-  - [x] Update top-level `build.gradle.kts` with KSP + serialization plugins
-  - [x] Update `app/build.gradle.kts` with plugins, dependencies
-- [x] 2. Application & DI
-  - [x] Create `AppFunctionsGlassesSampleApplication.kt`
-  - [x] Update `AndroidManifest.xml` with Application class reference
-  - [x] Create `di/DatabaseModule.kt` (DataStore provider)
-- [x] 3. Domain / Data Layer
-  - [x] Create `models/Note.kt`
-  - [x] Create `repositories/NotesRepository.kt` (interface)
-  - [x] Create `repositories/NotesRepositoryImpl.kt`
-  - [x] Create `di/RepositoryModule.kt`
-- [x] 4. UI / Presentation Layer
-  - [x] Create `ui/notesoverview/NotesOverviewUiState.kt`
-  - [x] Create `ui/notesoverview/NotesOverviewViewModel.kt`
-  - [x] Create `ui/notesoverview/NotesOverviewScreen.kt`
-  - [x] Update `MainActivity.kt`
-- [x] 5. Resources
-  - [x] Update `strings.xml`
-- [x] 6. Verification
-  - [x] Run `./gradlew assembleDebug` and confirm success
+- [x] 
+    1. Build & Dependency Layer
+
+    - [x] Update `libs.versions.toml` with Hilt, KSP, DataStore, serialization, lifecycle versions
+    - [x] Update top-level `build.gradle.kts` with KSP + serialization plugins
+    - [x] Update `app/build.gradle.kts` with plugins, dependencies
+- [x] 
+    2. Application & DI
+
+    - [x] Create `AppFunctionsGlassesSampleApplication.kt`
+    - [x] Update `AndroidManifest.xml` with Application class reference
+    - [x] Create `di/DatabaseModule.kt` (DataStore provider)
+- [x] 
+    3. Domain / Data Layer
+
+    - [x] Create `models/Note.kt`
+    - [x] Create `repositories/NotesRepository.kt` (interface)
+    - [x] Create `repositories/NotesRepositoryImpl.kt`
+    - [x] Create `di/RepositoryModule.kt`
+- [x] 
+    4. UI / Presentation Layer
+
+    - [x] Create `ui/notesoverview/NotesOverviewUiState.kt`
+    - [x] Create `ui/notesoverview/NotesOverviewViewModel.kt`
+    - [x] Create `ui/notesoverview/NotesOverviewScreen.kt`
+    - [x] Update `MainActivity.kt`
+- [x] 
+    5. Resources
+
+    - [x] Update `strings.xml`
+- [x] 
+    6. Verification
+
+    - [x] Run `./gradlew assembleDebug` and confirm success

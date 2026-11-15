@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
+        android:name=".AppFunctionsGlassesSampleApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -9,12 +10,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Appfunctionsglassessample"
-        android:name=".AppFunctionsGlassesSampleApplication">
+        android:theme="@style/Theme.Appfunctionsglassessample">
         <activity
-            android:name=".GlassesMainActivity"
+            android:name=".glasses.GlassesMainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:launchMode="singleTop"
             android:requiredDisplayCategory="android.hardware.display.category.XR_PROJECTED">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

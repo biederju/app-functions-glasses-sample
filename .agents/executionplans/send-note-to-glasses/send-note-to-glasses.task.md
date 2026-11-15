@@ -1,0 +1,13 @@
+- [x] Create SentNotesRepository interface
+- [x] Create SentNotesRepositoryImpl (in-memory @Singleton)
+- [x] Update RepositoryModule with @Binds binding
+- [x] Update NotesOverviewViewModel (inject SentNotesRepository, add sendNoteToGlasses)
+- [x] Update NotesOverviewScreen (add send IconButton, reorder layout, wire send action)
+- [x] Update GlassesMainActivity (replace HomeScreen with SentNotesOverlay using HorizontalStack)
+- [x] Update AndroidManifest.xml (add singleTop launchMode)
+- [x] Update strings.xml (add new strings)
+- [x] Build & lint verification
+- [x] Wire Dismiss button to call dismissNote (noteId) instead of empty onClick
+- [x] Add audioInterface.speak () calls for "Note displayed" and "Note dismissed"
+- [x] Change button text from "Close" to "Dismiss"
+- [x] Fix pager not scrolling to newly sent notes (LaunchedEffect + animateScrollToPage)

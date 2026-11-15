@@ -63,8 +63,8 @@ private fun monitorProjectedConnectivity(activity: ComponentActivity) {
 Wrap the [`createProjectedDeviceContext`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createProjectedDeviceContext(android.content.Context)) call within the
 [`ProjectedContext.isProjectedDeviceConnected`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#isProjectedDeviceConnected(android.content.Context,kotlin.coroutines.CoroutineContext)). While this method returns
 `true`, the projected context remains valid to the connected device, and your
-phone app activity or service (such as a `CameraManager`) can access the AI
-glasses hardware.
+phone app activity or service (such as a `CameraManager`) can access the glasses
+hardware.
 
 ### Clean up on disconnect
 
@@ -77,106 +77,18 @@ context.
 
 ### Re-initialize on reconnect
 
-When the glasses reconnect, your app can obtain another projected
-context instance using [`createProjectedDeviceContext`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createProjectedDeviceContext(android.content.Context)), and then
-re-initialize any system services or resources using the new projected context.
+When the glasses reconnect, your app can obtain another projected context
+instance using [`createProjectedDeviceContext`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createProjectedDeviceContext(android.content.Context)), and then re-initialize any
+system services or resources using the new projected context.
 
 ## Record audio with the glasses' microphone
 
-You can record audio from the glasses using two distinct methods:
-
-- Use a [projected context](https://developer.android.com/develop/xr/jetpack-xr-sdk/glasses/support-different-types#projected-context).
-- Use Bluetooth Hands-Free Profile (HFP).
-
-### Choose a recording methods
-
-The method you choose depends on whether you need high-fidelity, XR-specific
-audio processing, or standard Bluetooth audio input.
-
-| Recording method | Microphone access | Common use case |
-|---|---|---|
-| Projected Context | Multiple microphones | Recording using a projected context lets your app access multiple microphones from the glasses and its specialized hardware features, such as: - XR-specific spatialization. - Advanced denoising. - Voice separation that isolates the wearer's voice. - Maintain recording access in multidevice environments even when the glasses are not the active Bluetooth device. |
-| Bluetooth HFP | Single microphone | Relies on the Bluetooth Hands-Free Profile (HFP) for immediate, out-of-the-box compatibility. In this mode, the glasses connect to the phone using standard Headset and Advanced Audio Distribution Profile (A2DP) [profiles](https://developer.android.com/develop/connectivity/bluetooth/profiles), functioning like a typical Bluetooth peripheral. If your app is already designed for standard Bluetooth recording, you can use this method to record audio from the glasses without integrating any XR-specific capabilities. |
-
-### Record audio using a projected context
-
-To record audio using a projected context, first request the required runtime
-permissions, and then record the audio using the [`AudioRecord`](https://developer.android.com/reference/kotlin/android/media/AudioRecord) API, as
-described in the following sections.
-
-#### Request runtime permissions
-
-To access multiple microphones on the glasses, you must request audio
-permissions specifically for the projected device. The standard, phone-scoped
-`RECORD_AUDIO` permission that a user has granted for your app on their mobile
-device is insufficient.
-
-Follow these steps to request the permissions:
-
-1. [Declare the `RECORD_AUDIO` permission](https://developer.android.com/develop/xr/jetpack-xr-sdk/request-hardware-permissions#declare-permissions) in your app's manifest file.
-2. Request the projected-device-scoped permissions in one of the following
-   ways, depending on where your code is executing:
-
-   - **Code executing from a projected activity** : Use the [`ActivityResultLauncher`](https://developer.android.com/reference/kotlin/androidx/activity/result/ActivityResultLauncher) with the [`ProjectedPermissionsResultContract`](https://developer.android.com/reference/kotlin/androidx/xr/projected/permissions/ProjectedPermissionsResultContract#ProjectedPermissionsResultContract()). For more information on using this method, see the [register the permissions launcher](https://developer.android.com/develop/xr/jetpack-xr-sdk/request-hardware-permissions#register) section and subsequent sections in the guide for requesting hardware permissions.
-   - **Code executing from a host phone activity** : Use [`Activity#requestPermissions(permissions, requestCode, deviceId)`](https://developer.android.com/reference/kotlin/android/app/Activity#requestpermissions_1) and provide the device ID obtained from your `projectedDeviceContext`, as described in the [understand the permission request user flow](https://developer.android.com/develop/xr/jetpack-xr-sdk/request-hardware-permissions#permissions-user-flow) section of the guide for requesting hardware permissions.
-
-#### Initialize AudioRecord with a projected context
-
-To ensure that audio is recorded from the glasses rather than the host phone,
-you must associate the `AudioRecord` object with the projected device context.
-
-The following code uses the [`AudioRecord.Builder`](https://developer.android.com/reference/kotlin/android/media/AudioRecord.Builder) and passes the
-`projectedDeviceContext` to the [`setContext`](https://developer.android.com/reference/kotlin/android/media/AudioRecord.Builder#setcontext) method:
-
-
-```kotlin
-// Initialize AudioRecord with projected device context
-val audioRecord = AudioRecord.Builder()
-    .setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
-    .setAudioFormat(audioFormat)
-    .setBufferSizeInBytes(bufferSize)
-    // pass in the projected device context
-    .setContext(projectedDeviceContext)
-    .build()
-
-audioRecord.startRecording()
-```
-
-<br />
-
-##### Key points about the code
-
-- You can set the audio source to [`CAMCORDER`](https://developer.android.com/reference/kotlin/android/media/MediaRecorder.AudioSource#camcorder),
-  [`VOICE_RECOGNITION`](https://developer.android.com/reference/kotlin/android/media/MediaRecorder.AudioSource#voice_recognition), [`VOICE_COMMUNICATION`](https://developer.android.com/reference/kotlin/android/media/MediaRecorder.AudioSource#voice_communication), or
-  [`UNPROCESSED`](https://developer.android.com/reference/kotlin/android/media/MediaRecorder.AudioSource#unprocessed) to tailor the audio processing to your specific use
-  case.
-
-  For example, use `VOICE_COMMUNICATION` if your use case needs automatic
-  noise reduction or to isolate the wearer's voice. `VOICE_RECOGNITION` is
-  processed with acoustic echo cancellation (AEC), which can be useful when
-  there's concurrent audio playback while recording. And if you need raw,
-  unaltered audio, select `UNPROCESSED` or `CAMCORDER`.
-- To ensure compatibility with the glasses, the `audioFormat` object must
-  define a sample rate of 16kHz and a channel configuration of either mono or
-  stereo (using [`CHANNEL_IN_MONO`](https://developer.android.com/reference/kotlin/android/media/AudioFormat#channel_in_mono) or [`CHANNEL_IN_STEREO`](https://developer.android.com/reference/kotlin/android/media/AudioFormat#channel_in_stereo)).
-
-- Use [`AudioRecord.getMinBufferSize()`](https://developer.android.com/reference/kotlin/android/media/AudioRecord#getminbuffersize) to determine the minimum buffer
-  size to create the `AudioRecord` object. However, to prevent audio drops
-  from the glasses, you should read from this buffer in short, frequent chunks
-  (ideally 20ms slices) rather than waiting for the entire buffer to fill.
-
-> [!WARNING]
-> **Preview:** Support for using the [`MediaRecorder`](https://developer.android.com/reference/kotlin/android/media/MediaRecorder) API with a projected context will be available in an upcoming Android Beta release.
-
-##### Clean up after use
-
-When your app no longer needs the microphone, or when the activity is stopped,
-call [`stop`](https://developer.android.com/reference/kotlin/android/media/AudioRecord#stop) and [`release`](https://developer.android.com/reference/kotlin/android/media/AudioRecord#release) on the `AudioRecord` object.
-
-##### Check for runtime permissions before recording
-
-Before calling [`startRecording`](https://developer.android.com/reference/kotlin/android/media/AudioRecord#startrecording), [verify that the user has granted the
-microphone permission for the glasses](https://developer.android.com/develop/xr/jetpack-xr-sdk/request-hardware-permissions#check-function) using the projected context.
+You can record audio from the glasses using Bluetooth Hands-Free Profile (HFP).
+In this mode, the glasses connect to the phone using standard Headset and
+Advanced Audio Distribution Profile (A2DP) profiles, functioning like a typical
+Bluetooth peripheral. If your app is already designed for standard Bluetooth
+recording, you can use this method to record audio from the glasses without any
+additional development.
 
 ### Record audio using Bluetooth HFP
 
@@ -210,21 +122,41 @@ directs the system to retrieve audio from the Bluetooth peripheral.
 
 ```kotlin
 val audioManager = context.getSystemService(AudioManager::class.java) ?: return
-val devices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
-val hfpDevice = devices.find { it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO }
+val hfpDevice = audioManager.availableCommunicationDevices
+    .firstOrNull { it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO } ?: return
 
-hfpDevice?.let { device ->
-    val audioRecord = AudioRecord.Builder()
-        .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-        .setAudioFormat(audioFormat)
-        .setBufferSizeInBytes(bufferSize)
-        .build()
+// HFP input is limited to 16 kHz, with mono or stereo channel configurations.
+val sampleRate = 16_000
+val channelMask = AudioFormat.CHANNEL_IN_MONO
+val encoding = AudioFormat.ENCODING_PCM_16BIT
 
-    // Route recording to the Bluetooth device
-    audioRecord.setPreferredDevice(device)
-    audioManager.setCommunicationDevice(device)
+// Use a small multiple of the minimum buffer size to keep chunks short for low latency.
+val minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelMask, encoding)
+if (minBufferSize <= 0) return
 
+val audioRecord = AudioRecord.Builder()
+    .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+    .setAudioFormat(
+        AudioFormat.Builder()
+            .setSampleRate(sampleRate)
+            .setChannelMask(channelMask)
+            .setEncoding(encoding)
+            .build()
+    )
+    .setBufferSizeInBytes(minBufferSize * 2)
+    .build()
+
+try {
+    // Route voice communication audio through the Bluetooth device.
+    if (!audioManager.setCommunicationDevice(hfpDevice)) return
     audioRecord.startRecording()
+    // Read audio with audioRecord.read() on a background thread.
+} finally {
+    // Stop and release when done.
+    if (audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) audioRecord.stop()
+    audioRecord.release()
+    audioManager.clearCommunicationDevice()
+}
 ```
 
 <br />
@@ -240,7 +172,7 @@ context for your app:
 
 
 ```kotlin
-private fun startCameraOnGlasses(activity: ComponentActivity) {
+private fun setUpGlassesCamera(activity: ComponentActivity) {
     activity.lifecycleScope.launch {
         // Before creating a projected context, check to see if the projected device is connected.
         ProjectedContext.isProjectedDeviceConnected(activity, coroutineContext)
@@ -267,31 +199,43 @@ private fun startCameraOnGlasses(activity: ComponentActivity) {
                             return@addListener
                         }
 
-                        // 3. Query supported streaming resolutions using Camera2 Interop.
+                        // 3. Query supported streaming resolutions dynamically using Camera2 Interop.
                         val cameraInfo = cameraProvider.getCameraInfo(cameraSelector)
-                        val camera2CameraInfo = Camera2CameraInfo.from(cameraInfo)
-                        val cameraCharacteristics = camera2CameraInfo.getCameraCharacteristic(
+                        val map = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
                             CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
                         )
+                        val supportedResolutions = map?.getOutputSizes(ImageFormat.JPEG)?.toList() ?: emptyList()
+                        Log.i(TAG, "Supported resolutions for JPEG: ${supportedResolutions.joinToString()}")
 
-                        // 4. Define the resolution strategy.
-                        val targetResolution = Size(1920, 1080)
+                        // 4. Dynamically select the best target resolution from the queried list.
+                        val preferredResolution = Size(1920, 1080)
+                        val dynamicTargetResolution = when {
+                            // Case A: The preferred resolution is explicitly supported by the glasses.
+                            supportedResolutions.contains(preferredResolution) -> preferredResolution
+
+                            // Case B: Find the highest supported 16:9 resolution as a fallback.
+                            else -> {
+                                val targetAspectRatio = 16.0 / 9.0
+                                val tolerance = 0.01
+                                supportedResolutions
+                                    .filter { abs((it.width.toDouble() / it.height) - targetAspectRatio) < tolerance }
+                                    .maxByOrNull { it.width * it.height }
+                                    // Case C: Absolute fallback if no 16:9 resolutions are found.
+                                    ?: supportedResolutions.firstOrNull()
+                                    ?: preferredResolution
+                            }
+                        }
+                        Log.i(TAG, "Selected target resolution: $dynamicTargetResolution")
+
                         val resolutionStrategy = ResolutionStrategy(
-                            targetResolution,
+                            dynamicTargetResolution,
                             ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
                         )
                         val resolutionSelector = ResolutionSelector.Builder()
                             .setResolutionStrategy(resolutionStrategy)
                             .build()
 
-                        // 5. If you have other continuous use cases bound, such as Preview or ImageAnalysis,
-                        // you can use  Camera2 Interop's CaptureRequestOptions to set the FPS
-                        val fpsRange = Range(30, 60)
-                        val captureRequestOptions = CaptureRequestOptions.Builder()
-                            .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange)
-                            .build()
-
-                        // 6. Initialize the ImageCapture use case with options.
+                        // 5. Initialize the ImageCapture use case with options.
                         val imageCapture = ImageCapture.Builder()
                             // Optional: Configure resolution, format, etc.
                             .setResolutionSelector(resolutionSelector)
@@ -330,36 +274,134 @@ private fun startCameraOnGlasses(activity: ComponentActivity) {
 - Binds the `ImageCapture` use case to the activity's lifecycle. This automatically manages the opening and closing of the camera based on the activity's state (for example, stopping the camera when the activity is paused).
 - **Configuring for single-stream hardware:** The glasses camera pipeline is constrained to a single active stream at a time. When `ImageCapture` is bound alone, CameraX attaches an internal repeating stream (`MeteringRepeating`) for focus and metering by default, which causes the single-stream pipeline to stall. To bind `ImageCapture` by itself without a preview stream, disable the forced repeating stream by setting [`setRepeatingStreamForced(false)`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder#setRepeatingStreamForced(kotlin.Boolean)) on [`CameraXConfig.Builder`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Builder) (for example, by implementing [`CameraXConfig.Provider`](https://developer.android.com/reference/kotlin/androidx/camera/core/CameraXConfig.Provider) in your `Application` class or configuring `ProcessCameraProvider` before initialization).
 
-After the glasses' camera is set up, you can capture an image with the
-CameraX's `ImageCapture` class. Refer to the CameraX's documentation to learn
-about using [`takePicture`](https://developer.android.com/media/camera/camerax/take-photo#take_a_picture) to [capture an image](https://developer.android.com/media/camera/camerax/take-photo#take_a_picture).
+After the glasses' camera is set up, you can capture an image with the CameraX's
+`ImageCapture` class. Refer to the CameraX's documentation to learn about using
+[`takePicture`](https://developer.android.com/media/camera/camerax/take-photo#take_a_picture) to [capture an image](https://developer.android.com/media/camera/camerax/take-photo#take_a_picture).
 
-### Capture a video with the glasses' camera
+## Capture a stream with the glasses' camera
 
-To capture a video instead of an image with the glasses' camera, replace the
-`ImageCapture` components with the corresponding [`VideoCapture`](https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture) components
-and modify the capture execution logic.
+To capture streams instead of an image, replace the `ImageCapture` component
+from the [capture image example](https://developer.android.com/develop/xr/jetpack-xr-sdk/access-hardware-projected-context#capture-image) with [`VideoCapture`](https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture) or
+[`ImageAnalysis`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageAnalysis) components and change the capture logic.
 
-The main changes involve using a different use case, creating a different output
-file, and initiating the capture using the appropriate video recording method.
-For more information about the `VideoCapture` API and how to use it, see the
-[CameraX's video capture documentation](https://developer.android.com/media/camera/camerax/video-capture#using-videocapture-api).
+For more information about these APIs how to use them, see the [CameraX video
+capture](https://developer.android.com/media/camera/camerax/video-capture#using-videocapture-api) and [CameraX iamge analysis](https://developer.android.com/media/camera/camerax/analyze) documentation.
 
-> [!IMPORTANT]
-> **Important:** Battery power and thermal dissipation on glasses devices is often limited. When developing for glasses, pay close attention to the requested **output format** and **resolution**, as these can severely impact system power and temperature.
+### Choose a resolution and frame rate
 
-The following table shows the recommended resolution and frame rate depending on
-your app's use case:
+You should query the device to find its supported resolutions and their
+corresponding maximum frame rates. The following table lists examples of values
+you might see, depending on your app's use case. To conserve battery power and
+reduce heat on the glasses, choose the lowest resolution and frame rate that
+work for your use case.
 
 | Use case | Resolution | Frame rate |
 |---|---|---|
-| Video Communication | 1280 x 720 | 15 FPS |
-| Computer Vision | 640 x 480 | 10 FPS |
-| AI Video Streaming | 640 x 480 | 1 FPS |
+| Text recognition (OCR) or world sensing | 1920 x 1080 | 1 FPS |
+| AI video streaming (multimodal assistants) | 1024 x 768 | 1 FPS |
+| Localization and visual positioning (VPS) | 640 x 360 or 640 x 480 | 10 FPS |
+| Video calling | 640 x 360 or 640 x 480 | 24 FPS |
+
+> [!IMPORTANT]
+> **Important:** Supported resolutions and their maximum frame rates vary by device and can change. You should query them at runtime instead of hardcoding them.
+
+### Query the maximum frame rate for each resolution
+
+[`CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES`](https://developer.android.com/reference/kotlin/android/hardware/camera2/CameraCharacteristics#CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES) reports the device's overall
+frame rate bounds, which can be higher than the streaming rate that a given
+resolution supports. To get the actual maximum for each resolution on audio and
+display glasses, read its minimum frame duration and convert it to FPS with
+[`StreamConfigurationMap.getOutputMinFrameDuration(format, size)`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap#getOutputMinFrameDuration(int,%20android.util.Size)):
+
+
+```kotlin
+@androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
+fun getMaxFpsBySize(cameraInfo: CameraInfo, format: Int): Map<Size, Int> {
+    val map = Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
+        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
+    ) ?: return emptyMap()
+
+    return map.getOutputSizes(format).associateWith { size ->
+        val minFrameDurationNs = map.getOutputMinFrameDuration(format, size)
+        if (minFrameDurationNs > 0) (1_000_000_000L / minFrameDurationNs).toInt() else 0
+    }
+}
+```
+
+<br />
+
+Next, use that value to calculate the `minFps` and `maxFps` bounds for your
+target frame rate range. Cap the lower bound (`minFps`) at the resolution's
+maximum streaming frame rate calculated from `getOutputMinFrameDuration`, and
+set a higher upper bound (`maxFps`) as a catch-up window:
+
+
+```kotlin
+val maxFpsBySize = getMaxFpsBySize(cameraInfo, ImageFormat.YUV_420_888)
+val maxSupportedFps = maxFpsBySize[Size(640, 480)] ?: return ImageAnalysis.Builder().build()
+
+// minFps is the target streaming frame rate and should be at most maxSupportedFps.
+val minFps = minOf(desiredFps, maxSupportedFps)
+// Set the upper bound to 2x minFps so the stream can catch up if frames are delayed.
+val maxFps = minFps * 2
+```
+
+<br />
+
+#### Key points about the code
+
+- Use the format that matches your use case. For [`ImageAnalysis`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageAnalysis), that's [`YUV_420_888`](https://developer.android.com/reference/kotlin/android/graphics/ImageFormat#YUV_420_888).
+- For [`VideoCapture`](https://developer.android.com/reference/kotlin/androidx/camera/video/VideoCapture), use the `Class` overloads instead: [`getOutputSizes(MediaRecorder::class.java)`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap#getOutputSizes(java.lang.Class%3CT%3E)) and [`getOutputMinFrameDuration(MediaRecorder::class.java, size)`](https://developer.android.com/reference/kotlin/android/hardware/camera2/params/StreamConfigurationMap#getOutputMinFrameDuration(java.lang.Class%3CT%3E,%20android.util.Size)).
+- Specify a range where `maxFps` is greater than `minFps` (such as `minFps*2`) rather than setting both bounds to the same value like `Range(minFps,
+  minFps)`. The lower bound (`minFps`) sets the target streaming frame rate and should be at most the value calculated from `getOutputMinFrameDuration`, while the upper bound (`maxFps`) acts as a catch-up window for delayed frames to prevent persistent latency. For example, \[1,2\] or \[1,3\] for a 1 FPS stream, and \[24,30\] or \[24,48\] for a 24 FPS stream.
+
+> [!NOTE]
+> **Note:** Using the lower bound as the streaming frame rate reflects current device behavior and might change on future devices.
+
+### Configure the frame rate
+
+To configure the frame rate range based on your CameraX use case:
+
+
+```kotlin
+// Configure Resolution Strategy for the stream
+val resolutionStrategy = ResolutionStrategy(
+    size,
+    ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
+)
+val resolutionSelector = ResolutionSelector.Builder()
+    .setResolutionStrategy(resolutionStrategy)
+    .build()
+
+// Create and return the ImageAnalysis builder with proper frame rate ranges
+// ImageAnalysis: OCR, AI streaming, and VPS
+val analysisBuilder = ImageAnalysis.Builder()
+    .setResolutionSelector(resolutionSelector)
+
+Camera2Interop.Extender(analysisBuilder)
+    .setCaptureRequestOption(
+        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+        Range(minFps, maxFps)
+    )
+return analysisBuilder.build()
+```
+
+<br />
+
+This example shows configuration for both `VideoCapture` and `ImageAnalysis`,
+but you can implement whichever use cases your app supports.
+
+### Understand how the stream behaves
+
+Keep the following system behaviors in mind while working with capture streams:
+
+- **Unsupported resolutions are rejected**: If you request a size that isn't in the list, Camera2 rejects the configuration before the stream opens.
+- **Requesting frame rates above the maximum**: If you request a minimum frame rate above the maximum supported for your resolution, the session still opens, but the target frame rate from the glasses is clamped to that supported maximum while the upper bound continues to act as the catch-up rate limit. For example, requesting \[30,60\] at 640 x 480 clamps the target frame rate to 24 FPS (behaving like \[24,60\]).
+- **Thermal throttling**: When the glasses get warm, the frame rate drops but the resolution stays the same. Build your app to handle lower or uneven frame rates, for example by checking frame timestamps rather than assuming a fixed rate.
 
 ## Access a phone's hardware from a projected activity
 
-An [projected activity](https://developer.android.com/develop/xr/jetpack-xr-sdk/glasses/support-different-types#activity-lifecycle) can also access the phone's hardware (such as the
+A [projected activity](https://developer.android.com/develop/xr/jetpack-xr-sdk/glasses/support-different-types#activity-lifecycle) can also access the phone's hardware (such as the
 camera or microphone) by using [`createHostDeviceContext(context)`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createHostDeviceContext(android.content.Context)) to get
 the host device's (phone) context:
 
@@ -380,9 +422,9 @@ private fun getPhoneContext(activity: ComponentActivity): Context? {
 <br />
 
 When accessing hardware or resources that are specific to the host device
-(phone) in a hybrid app (an app containing both mobile and glasses
-experiences), you must explicitly select the correct context to make sure your
-app can access the correct hardware:
+(phone) in a hybrid app (an app containing both mobile and glasses experiences),
+you must explicitly select the correct context to make sure your app can access
+the correct hardware:
 
 - Use the [`Activity`](https://developer.android.com/reference/kotlin/android/app/Activity) context from the phone `Activity` or the [`ProjectedContext.createHostDeviceContext`](https://developer.android.com/reference/kotlin/androidx/xr/projected/ProjectedContext#createHostDeviceContext(android.content.Context)) to get the phone's context.
 - Don't use [`getApplicationContext`](https://developer.android.com/reference/kotlin/android/content/Context#getapplicationcontext) because the application context can incorrectly return the glasses' context if a projected activity was the most-recently-launched component.

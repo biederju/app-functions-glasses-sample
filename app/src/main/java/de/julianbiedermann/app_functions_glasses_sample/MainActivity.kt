@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import dagger.hilt.android.AndroidEntryPoint
 import de.julianbiedermann.app_functions_glasses_sample.ui.notesoverview.NotesOverviewScreen
-import de.julianbiedermann.app_functions_glasses_sample.ui.theme.AppfunctionsglassessampleTheme
 
 @AndroidEntryPoint
 internal class MainActivity : ComponentActivity() {
@@ -15,7 +15,7 @@ internal class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppfunctionsglassessampleTheme {
+            MaterialTheme {
                 Surface {
                     NotesOverviewScreen()
                 }

@@ -14,6 +14,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import de.julianbiedermann.app_functions_glasses_sample.appfunctions.models.NoteAppFunctionResult
 import de.julianbiedermann.app_functions_glasses_sample.appfunctions.models.NoteListAppFunctionResult
 import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
 import de.julianbiedermann.app_functions_glasses_sample.domain.notes.NotesRepository
@@ -39,6 +40,45 @@ import timber.log.Timber
     appFunctionXmlFileName = "notes_glasses_app_function_service",
 )
 abstract class NotesGlassesAppFunctionService : AppFunctionService() {
+
+    /**
+     * Create a new note with a topic and body text.
+     *
+     * Persists the note to the repository and optionally enqueues it into the glasses queue
+     * and launches the glasses projected activity if [showOnGlasses] is true.
+     *
+     * @param topic The title or topic of the note. Must not be blank.
+     * @param text The body content of the note. Must not be blank.
+     * @param showOnGlasses Whether to immediately display the created note on connected display glasses. Defaults to false.
+     * @return [NoteAppFunctionResult] containing the created note details.
+     * @throws AppFunctionInvalidArgumentException If [topic] or [text] is blank.
+     */
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
+    suspend fun createNote(
+        topic: String,
+        text: String,
+        showOnGlasses: Boolean = false,
+    ): NoteAppFunctionResult = withContext(Dispatchers.IO) {
+        if (topic.isBlank()) {
+            throw AppFunctionInvalidArgumentException("topic must not be blank")
+        }
+        if (text.isBlank()) {
+            throw AppFunctionInvalidArgumentException("text must not be blank")
+        }
+
+        val (notesRepo, sentNotesRepo) = getInjectors()
+        notesRepo.addNote(topic = topic.trim(), text = text.trim())
+
+        // The newly created note is at the front (sorted by timestamp descending)
+        val createdNote = notesRepo.notes.first().first { it.topic == topic.trim() && it.text == text.trim() }
+        Timber.d("createNote: successfully created note with id %s, topic '%s'", createdNote.id, createdNote.topic)
+
+        if (showOnGlasses) {
+            enqueueNotes(listOf(createdNote), sentNotesRepo)
+        }
+
+        createdNote.toNoteAppFunctionResult()
+    }
 
     /**
      * Return the N most recent notes.

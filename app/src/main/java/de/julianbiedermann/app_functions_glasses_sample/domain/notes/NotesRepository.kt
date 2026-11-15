@@ -7,4 +7,5 @@ internal interface NotesRepository {
     val notes: Flow<List<Note>>
     suspend fun addNote(topic: String, text: String)
     suspend fun deleteNote(noteId: String)
+    suspend fun updateNote(noteId: String, topic: String, text: String)
 }

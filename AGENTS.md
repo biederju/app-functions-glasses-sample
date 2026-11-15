@@ -98,6 +98,12 @@ adb -s <device> shell 'cmd app_function execute-app-function \
   --function "de.julianbiedermann.app_functions_glasses_sample.appfunctions.NotesGlassesAppFunctionService#createNote" \
   --parameters "{\"topic\": \"Shopping\", \"text\": \"Buy milk and bread\", \"showOnGlasses\": true}"'
 
+# Edit an existing note (optionally update topic with newTopic and showOnGlasses: true)
+adb -s <device> shell 'cmd app_function execute-app-function \
+  --package de.julianbiedermann.app_functions_glasses_sample \
+  --function "de.julianbiedermann.app_functions_glasses_sample.appfunctions.NotesGlassesAppFunctionService#editNote" \
+  --parameters "{\"topic\": \"Shopping\", \"text\": \"Buy milk, bread, and coffee\", \"showOnGlasses\": true}"'
+
 # Show the 3 latest notes (omit count for default)
 adb -s <device> shell cmd app_function execute-app-function \
   --package de.julianbiedermann.app_functions_glasses_sample \

@@ -40,4 +40,22 @@ internal class NotesRepositoryImpl @Inject constructor(
             current.copy(notes = current.notes.filterNot { it.id == noteId })
         }
     }
+
+    override suspend fun updateNote(noteId: String, topic: String, text: String) {
+        dataStore.updateData { current ->
+            current.copy(
+                notes = current.notes.map { note ->
+                    if (note.id == noteId) {
+                        note.copy(
+                            topic = topic,
+                            text = text,
+                            timestamp = System.currentTimeMillis()
+                        )
+                    } else {
+                        note
+                    }
+                }
+            )
+        }
+    }
 }

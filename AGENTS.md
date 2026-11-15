@@ -89,8 +89,14 @@
 - **Test App Functions:** Verify the functions are registered and working if changes were made
 
 ```bash
-# List all registered functions (should return both functions)
+# List all registered functions (should return all 3 functions)
 adb -s <device> shell cmd app_function list-app-functions --package de.julianbiedermann.app_functions_glasses_sample
+
+# Create a new note (optionally showOnGlasses: true to project immediately)
+adb -s <device> shell 'cmd app_function execute-app-function \
+  --package de.julianbiedermann.app_functions_glasses_sample \
+  --function "de.julianbiedermann.app_functions_glasses_sample.appfunctions.NotesGlassesAppFunctionService#createNote" \
+  --parameters "{\"topic\": \"Shopping\", \"text\": \"Buy milk and bread\", \"showOnGlasses\": true}"'
 
 # Show the 3 latest notes (omit count for default)
 adb -s <device> shell cmd app_function execute-app-function \

@@ -1,6 +1,7 @@
 package de.julianbiedermann.app_functions_glasses_sample.domain.notes
 
-import de.julianbiedermann.app_functions_glasses_sample.di.NotesDataStore
+import androidx.datastore.core.DataStore
+import de.julianbiedermann.app_functions_glasses_sample.data.storage.NoteListStorage
 import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -11,7 +12,7 @@ import javax.inject.Singleton
 
 @Singleton
 internal class NotesRepositoryImpl @Inject constructor(
-    private val dataStore: NotesDataStore
+    private val dataStore: DataStore<NoteListStorage>
 ) : NotesRepository {
 
     override val notes: Flow<List<Note>> = dataStore.data

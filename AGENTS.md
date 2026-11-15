@@ -7,9 +7,11 @@
   for managing notes (viewing a list, adding via FAB, deleting) and a hands-free display glasses
   experience via an AI assistant and App Functions.
 - **Core Capabilities / Main Features:**
-    - Creating notes via assistant voice command (App Functions).
-    - Querying recent or day-specific notes to display on display glasses (Jetpack Compose Glimmer).
-    - Standard phone note management (list, add, delete).
+    - Indicator in the app if glasses are connected or not
+    - List all notes in the app (Timestamp, title, text)
+    - Create and delete notes in the app
+    - Show notes on the connected glasses via button press in app
+    - Show recent notes or notes which match a certain query on connected glasses
 - **Supported App Languages:** English
 
 ## Tech Stack
@@ -84,6 +86,25 @@
     4. Confirm expected UI state appears (elements/text visible, no crash/anr).
     5. For glasses (XR) flows, use a glasses-enabled AVD with the same
        layout/screen/input primitives.
+- **Test App Functions:** Verify the functions are registered and working if changes were made
+
+```bash
+# List all registered functions (should return both functions)
+adb -s <device> shell cmd app_function list-app-functions --package de.julianbiedermann.app_functions_glasses_sample
+
+# Show the 3 latest notes (omit count for default)
+adb -s <device> shell cmd app_function execute-app-function \
+  --package de.julianbiedermann.app_functions_glasses_sample \
+  --function 'de.julianbiedermann.app_functions_glasses_sample.appfunctions.NotesGlassesAppFunctionService#showLatestNotes' \
+  --parameters '{}'
+
+# Search notes containing "groceries"
+adb -s <device> shell cmd app_function execute-app-function \
+  --package de.julianbiedermann.app_functions_glasses_sample \
+  --function 'de.julianbiedermann.app_functions_glasses_sample.appfunctions.NotesGlassesAppFunctionService#searchNotesOnGlasses' \
+  --parameters '{"query":"groceries"}'
+```
+
 - Self-Correction: Fix root causes precisely if verification fails. Do not apply blind
   workarounds.
 - Keep `AGENTS.md` updated whenever new architectural decisions are made.
@@ -122,9 +143,11 @@
 
 Organize package structures logically by feature:
 
-- `ai` – App Functions services and entry points.
+- `appfunctions` – App Functions services and entry points.
 - `di` – Hilt dependency injection modules.
-- `data/storage` – File-backed DataStore serializer (`NoteListSerializer`) and `NoteList` data
+- `extensions` - Extension functions of classes.
+- `data/storage` – File-backed DataStore serializer (`NoteListStorageSerializer`) and
+  `NoteListStorage` data
   class.
 - `domain/models` – Domain models (e.g., `Note`).
 - `domain/notes` – Notes domain logic (`NotesRepository`, `NotesRepositoryImpl`).
@@ -187,6 +210,7 @@ Organize package structures logically by feature:
 - **NEVER** hardcode version strings directly inside `build.gradle.kts` files.
 - **NEVER** write unit tests unless explicitly requested by the user.
 - **NEVER** include local databases (Room) or complex navigation libraries in this sample app.
+- Avoid deprecated functions, classes and apis
 
 ## Documentation & Logging
 

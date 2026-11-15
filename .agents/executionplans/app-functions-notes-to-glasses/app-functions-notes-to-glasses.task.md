@@ -5,9 +5,11 @@
 - [x] 
     1. Added `appfunctions = "1.0.0-alpha12"` version to `libs.versions.toml`
 - [x] 
-    2. Added `androidx-appfunctions` and `androidx-appfunctions-compiler` library aliases to `libs.versions.toml`
+    2. Added `androidx-appfunctions` and `androidx-appfunctions-compiler` library aliases to
+       `libs.versions.toml`
 - [x] 
-    3. Added `implementation(libs.androidx.appfunctions)` and `ksp(libs.androidx.appfunctions.compiler)` to `app/build.gradle.kts`
+    3. Added `implementation(libs.androidx.appfunctions)` and
+       `ksp(libs.androidx.appfunctions.compiler)` to `app/build.gradle.kts`
 - [x] 
     4. Verified KSP plugin is present in `libs.plugins.ksp`
 
@@ -15,13 +17,16 @@
 
 - [x] 
     5. Created `app/src/main/res/xml/app_metadata.xml` with agent-facing capabilities description
+
     - Operational patterns: `showLatestNotes` and `searchNotesOnGlasses`
     - Constraints: requires at least one existing note
 
 ## Phase 3: Serializable Result Type
 
 - [x] 
-    6. Created `ai/ShowNotesResult.kt` — `@AppFunctionSerializable(isDescribedByKDoc = true)` data class
+    6. Created `ai/ShowNotesResult.kt` — `@AppFunctionSerializable(isDescribedByKDoc = true)` data
+       class
+
     - Inline KDoc on `count` property
     - Also annotated with `@Serializable` for kotlinx.serialization
 
@@ -29,15 +34,19 @@
 
 - [x] 
     7. Created `ai/NotesGlassesAppFunctionService.kt`
+
     - Abstract class extending `AppFunctionService`
     - Annotated with `@AndroidEntryPoint` and `@AppFunctionServiceEntryPoint`
-    - `serviceName = "NotesGlasses"`, `appFunctionXmlFileName = "notes_glasses_app_function_service"`
+    - `serviceName = "NotesGlasses"`,
+      `appFunctionXmlFileName = "notes_glasses_app_function_service"`
     - Two `@AppFunction` methods:
         - `showLatestNotes(count: Int = 3)` — shows N most recent notes
         - `searchNotesOnGlasses(query: String)` — searches notes by query (case-insensitive)
-    - Both methods: suspend, use `withContext(Dispatchers.IO)`, throw typed `AppFunctionException` subclasses
+    - Both methods: suspend, use `withContext(Dispatchers.IO)`, throw typed `AppFunctionException`
+      subclasses
     - Hilt EntryPoint pattern for DI (`AppFunctionEntryPoint` interface)
-    - `enqueueNotes()` helper: enqueues notes to `SentNotesRepository` and launches glasses via `ProjectedContext`
+    - `enqueueNotes()` helper: enqueues notes to `SentNotesRepository` and launches glasses via
+      `ProjectedContext`
 
 ## Phase 5: Manifest Configuration
 
@@ -47,6 +56,7 @@
     9. Added `android.app.appfunctions.app_metadata` property pointing to `@xml/app_metadata`
 - [x] 
     10. Registered KSP-generated service (`NotesGlasses`) with:
+
     - `BIND_APP_FUNCTION_SERVICE` permission
     - `android:exported="true"`
     - `android.app.appfunctions.AppFunctionService` intent filter
@@ -56,16 +66,21 @@
 
 - [x] 
     11. Fixed KSP "Class must have at least one AppFunction" error
-    - Changed `serviceName` from `"NotesGlassesAppFunctionService"` to `"NotesGlasses"` to avoid naming collision
+
+    - Changed `serviceName` from `"NotesGlassesAppFunctionService"` to `"NotesGlasses"` to avoid
+      naming collision
     - Changed abstract class visibility from `internal` to `public` (KSP generates public subclass)
-    - Changed `ShowNotesResult` visibility from `internal` to `public`
+    - Changed `NoteListAppFunctionResult` visibility from `internal` to `public`
 - [x] 
     12. Fixed `coroutineContext` resolution in `ProjectedContext.isProjectedDeviceConnected()` call
+
     - Added `import kotlin.coroutines.coroutineContext`
 - [x] 
-    13. Fixed deprecated `startActivity` call — replaced with `ContextCompat.startActivity(this@..., intent, options)`
+    13. Fixed deprecated `startActivity` call — replaced with
+        `ContextCompat.startActivity(this@..., intent, options)`
 - [x] 
     14. Fixed `ActionCard` `header` parameter error in `GlassesMainActivity.kt`
+
     - Glimmer `1.0.0-alpha22` removed `header` parameter from `ActionCard`
     - Moved date display to `subtitle` parameter instead
 - [x] 

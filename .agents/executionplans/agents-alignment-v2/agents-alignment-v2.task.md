@@ -9,8 +9,8 @@
 
 ## Part B: Storage Migration (typed DataStore<NoteList>)
 
-- [x] Create `NoteList` wrapper data class
-- [x] Create `NoteListSerializer` (Serializer<NoteList>) in `data/storage/`
+- [x] Create `NoteListStorage` wrapper data class
+- [x] Create `NoteListStorageSerializer` (Serializer<NoteList>) in `data/storage/`
 - [x] Update `StorageModule.kt` to provide `DataStore<NoteList>`
 - [x] Migrate `NotesRepositoryImpl` to use typed DataStore (remove key-value map)
 - [x] Update `SentNotesRepository` interface to use Flow (match existing)
@@ -32,7 +32,7 @@
 - [x] Move `repositories/notes/*` → `domain/notes/*`
 - [x] Move `repositories/sentnotes/*` → `domain/sentnotes/*`
 - [x] Move `ui/notesoverview/*` → `ui/screens/notesoverview/*`
-- [x] Move `NoteListSerializer` → `data/storage/`
+- [x] Move `NoteListStorageSerializer` → `data/storage/`
 - [x] Update all imports across the app
 - [x] Update Hilt bindings in `RepositoryModule`
 

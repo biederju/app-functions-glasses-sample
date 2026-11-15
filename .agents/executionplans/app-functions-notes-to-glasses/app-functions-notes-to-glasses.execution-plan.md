@@ -53,9 +53,9 @@ display) and follows the `appfunctions` skill under `.agents/skills/appfunctions
 - Add version entries and library aliases:
     - `appfunctions = "1.0.0-rc01"` (fallback `1.0.0-alpha12` if resolution fails)
     -
-    `androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "appfunctions" }`
-    -
-    `androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version.ref = "appfunctions" }`
+  `androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version.ref = "appfunctions" }`
+  -
+  `androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version.ref = "appfunctions" }`
 - The KSP plugin is already present (`libs.plugins.ksp`), so no new plugin is required.
 
 #### [MODIFY] [app/build.gradle.kts](/Users/julian.biedermann/AndroidStudioProjects/Private/app-functions-glasses-sample/app/build.gradle.kts)
@@ -111,7 +111,7 @@ A `@RequiresApi(36)` `@AndroidEntryPoint` abstract `AppFunctionService` annotate
 - Reads the latest `count` notes from `NotesRepository.notes` (already timestamp-descending).
 - `count` clamped to `1..*`; empty list accepted (graceful empty result).
 - Enqueues them into `SentNotesRepository` and launches the glasses activity.
-- Returns a summary result (`ShowNotesResult`) describing how many notes were shown.
+- Returns a summary result (`NoteListAppFunctionResult`) describing how many notes were shown.
 - KDoc per the kdoc-refinement reference: strong imperative verb, `@param count` with default,
   `@return` description, recovery-oriented `@throws` mapping.
 
@@ -133,7 +133,8 @@ A `@RequiresApi(36)` `@AndroidEntryPoint` abstract `AppFunctionService` annotate
 
 ### KDoc Refinement
 
-- Refine the KDoc of both `@AppFunction` methods and the serializable (`ShowNotesResult`) inline
+- Refine the KDoc of both `@AppFunction` methods and the serializable (`NoteListAppFunctionResult`)
+  inline
   property docs so AI agents / MCP correctly understand the tools: imperative verb, explicit
   `@param` with default, error-recovery `@throws`, and the app-level `app_metadata.xml`
   operational-pattern description.

@@ -1,6 +1,5 @@
 package de.julianbiedermann.app_functions_glasses_sample.ui.screens.notesoverview
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,12 +26,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -196,25 +192,19 @@ private fun NoteItem(
     onDeleteNote: (String) -> Unit,
     onSendNote: (Note) -> Unit
 ) {
-    val dismissState = rememberSwipeToDismissBoxState()
-
-    SwipeToDismissBox(
-        state = dismissState,
-        modifier = Modifier.fillMaxWidth(),
-        backgroundContent = {
-            SwipeDismissBackground(
-                state = dismissState,
-                onDeleteNote = onDeleteNote,
-                noteId = note.id
-            )
-        }
-    ) {
-        NoteItemForeground(note = note, onSendNote = onSendNote)
-    }
+    NoteItemForeground(
+        note = note,
+        onDeleteNote = onDeleteNote,
+        onSendNote = onSendNote
+    )
 }
 
 @Composable
-private fun NoteItemForeground(note: Note, onSendNote: (Note) -> Unit) {
+private fun NoteItemForeground(
+    note: Note,
+    onDeleteNote: (String) -> Unit,
+    onSendNote: (Note) -> Unit
+) {
     val locale = Locale.current
     val dateFormat = SimpleDateFormat("MMM d, yyyy HH:mm", locale.platformLocale)
 
@@ -245,45 +235,20 @@ private fun NoteItemForeground(note: Note, onSendNote: (Note) -> Unit) {
                 )
             }
         }
-        IconButton(onClick = { onSendNote(note) }) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = stringResource(id = R.string.send_note)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SwipeDismissBackground(
-    state: androidx.compose.material3.SwipeToDismissBoxState,
-    onDeleteNote: (String) -> Unit,
-    noteId: String
-) {
-    val color = when (state.currentValue) {
-        SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.error.copy(alpha = 0f)
-    }
-    val alignment = when (state.currentValue) {
-        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-        else -> Alignment.Center
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .background(color),
-        contentAlignment = alignment
-    ) {
-        if (state.currentValue == SwipeToDismissBoxValue.EndToStart) {
-            IconButton(
-                onClick = { onDeleteNote(noteId) }
-            ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onDeleteNote(note.id) }) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = stringResource(id = R.string.delete_note),
-                    tint = MaterialTheme.colorScheme.onError
+                    contentDescription = stringResource(id = R.string.delete_note)
+                )
+            }
+            IconButton(onClick = { onSendNote(note) }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(id = R.string.send_note)
                 )
             }
         }

@@ -81,59 +81,6 @@ abstract class NotesGlassesAppFunctionService : AppFunctionService() {
     }
 
     /**
-     * Edit an existing note matching the given topic.
-     *
-     * Finds an existing note by its topic (case-insensitive), updates its text and optionally its topic,
-     * and persists the changes. Optionally enqueues the updated note into the glasses queue and launches
-     * the glasses projected activity if [showOnGlasses] is true.
-     *
-     * @param topic The topic of the existing note to find and edit. Must not be blank.
-     * @param text The new body content of the note. Must not be blank.
-     * @param newTopic Optional new topic name if renaming the note.
-     * @param showOnGlasses Whether to immediately display the updated note on connected display glasses. Defaults to false.
-     * @return [NoteAppFunctionResult] containing the updated note details.
-     * @throws AppFunctionInvalidArgumentException If [topic] or [text] is blank, or if no note is found matching [topic].
-     */
-    @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun editNote(
-        topic: String,
-        text: String,
-        newTopic: String? = null,
-        showOnGlasses: Boolean = false,
-    ): NoteAppFunctionResult = withContext(Dispatchers.IO) {
-        if (topic.isBlank()) {
-            throw AppFunctionInvalidArgumentException("topic must not be blank")
-        }
-        if (text.isBlank()) {
-            throw AppFunctionInvalidArgumentException("text must not be blank")
-        }
-
-        val (notesRepo, sentNotesRepo) = getInjectors()
-        val allNotes = notesRepo.notes.first()
-        val topicTrimmed = topic.trim()
-        val targetNote = allNotes.firstOrNull { it.topic.equals(topicTrimmed, ignoreCase = true) }
-            ?: throw AppFunctionInvalidArgumentException("No note found with topic: $topicTrimmed")
-
-        val effectiveTopic = newTopic?.takeIf { it.isNotBlank() }?.trim() ?: targetNote.topic
-        val effectiveText = text.trim()
-
-        notesRepo.updateNote(
-            noteId = targetNote.id,
-            topic = effectiveTopic,
-            text = effectiveText
-        )
-
-        val updatedNote = notesRepo.notes.first().first { it.id == targetNote.id }
-        Timber.d("editNote: successfully updated note with id %s, topic '%s'", updatedNote.id, updatedNote.topic)
-
-        if (showOnGlasses) {
-            enqueueNotes(listOf(updatedNote), sentNotesRepo)
-        }
-
-        updatedNote.toNoteAppFunctionResult()
-    }
-
-    /**
      * Return the N most recent notes.
      *
      * Reads the latest notes (sorted by timestamp descending) from the notes repository,

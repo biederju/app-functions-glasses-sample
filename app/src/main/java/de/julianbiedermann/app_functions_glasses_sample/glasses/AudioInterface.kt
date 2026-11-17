@@ -6,19 +6,12 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import timber.log.Timber
 
-internal class AudioInterface(
-    private val context: Context,
-    private val initializationMessage: String
-) : DefaultLifecycleObserver {
-    private lateinit var tts: TextToSpeech
-    override fun onStart(owner: LifecycleOwner) {
-        super.onStart(owner)
-        tts = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                speak(initializationMessage)
-            } else {
-                Timber.e("Initialization failed with status: $status")
-            }
+internal class AudioInterface(context: Context) : DefaultLifecycleObserver {
+    private val tts: TextToSpeech = TextToSpeech(context) { status ->
+        if (status == TextToSpeech.SUCCESS) {
+            Timber.d(message = "Initialization was successful")
+        } else {
+            Timber.e(message = "Initialization failed with status: $status")
         }
     }
 
@@ -27,7 +20,7 @@ internal class AudioInterface(
             textToSpeak,
             TextToSpeech.QUEUE_ADD,
             null,
-            initializationMessage.lowercase().replace(" ", "_")
+            "id"
         )
     }
 

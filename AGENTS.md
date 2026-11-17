@@ -9,9 +9,10 @@
 - **Core Capabilities / Main Features:**
     - Indicator in the app if glasses are connected or not
     - List all notes in the app (Timestamp, title, text)
-    - Create and delete notes in the app
+    - Create and delete notes in the app (creation also via app function)
     - Show notes on the connected glasses via button press in app
-    - Show recent notes or notes which match a certain query on connected glasses
+    - Show recent notes or notes which match a certain query on connected glasses (also via app
+      function)
 - **Supported App Languages:** English
 
 ## Tech Stack

@@ -48,7 +48,7 @@ import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import de.julianbiedermann.app_functions_glasses_sample.R
 import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
-import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
+import de.julianbiedermann.app_functions_glasses_sample.ui.GlassesMainActivity
 import timber.log.Timber
 import java.text.SimpleDateFormat
 

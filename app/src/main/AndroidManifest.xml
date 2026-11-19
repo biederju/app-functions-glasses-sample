@@ -15,7 +15,7 @@
             android:resource="@xml/app_metadata" />
 
         <activity
-            android:name=".glasses.GlassesMainActivity"
+            android:name=".ui.GlassesMainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:requiredDisplayCategory="android.hardware.display.category.XR_PROJECTED">

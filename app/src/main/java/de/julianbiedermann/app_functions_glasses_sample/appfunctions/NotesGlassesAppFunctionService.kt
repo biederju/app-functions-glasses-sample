@@ -20,7 +20,7 @@ import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
 import de.julianbiedermann.app_functions_glasses_sample.domain.notes.NotesRepository
 import de.julianbiedermann.app_functions_glasses_sample.domain.sentnotes.SentNotesRepository
 import de.julianbiedermann.app_functions_glasses_sample.extensions.toNoteAppFunctionResult
-import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
+import de.julianbiedermann.app_functions_glasses_sample.ui.GlassesMainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first

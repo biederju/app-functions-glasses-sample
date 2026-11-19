@@ -16,4 +16,4 @@ with [compose glimmer](https://developer.android.com/develop/xr/jetpack-xr-sdk/j
 2. [Create a display glasses emulator and pair it with a compatible phone emulator.](https://developer.android.com/develop/xr/jetpack-xr-sdk/run/create-avds/glasses)
 3. Build and run the debug configuration of the app on both emulators.
 
-For further project specifications please refer to [AGENTS.md](./AGENTS.md).
+For project specifications and rules please refer to [AGENTS.md](./AGENTS.md).

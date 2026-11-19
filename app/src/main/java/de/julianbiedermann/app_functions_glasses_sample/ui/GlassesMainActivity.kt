@@ -1,4 +1,4 @@
-package de.julianbiedermann.app_functions_glasses_sample.glasses
+package de.julianbiedermann.app_functions_glasses_sample.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,11 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -26,7 +22,6 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.TitleChip
 import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.list.items
-import androidx.xr.glimmer.list.rememberGlimmerLazyListState
 import dagger.hilt.android.AndroidEntryPoint
 import de.julianbiedermann.app_functions_glasses_sample.R
 import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
@@ -38,8 +33,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 internal class GlassesMainActivity : ComponentActivity() {
-    private lateinit var audioInterface: AudioInterface
-
     @Inject
     lateinit var sentNotesRepository: SentNotesRepository
 
@@ -48,8 +41,6 @@ internal class GlassesMainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Timber.d(message = "onCreate")
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = true
-        audioInterface = AudioInterface(context = this)
-        lifecycle.addObserver(audioInterface)
         setContent { GlimmerTheme { Content() } }
     }
 
@@ -64,17 +55,11 @@ internal class GlassesMainActivity : ComponentActivity() {
                 initialValue = emptyList()
             )
             if (sentNotes.isNotEmpty()) {
-                val displayedText = stringResource(id = R.string.note_displayed)
-                val dismissedText = stringResource(id = R.string.note_dismissed)
                 NoteList(
                     notes = sentNotes,
                     onDismissNote = { noteId ->
                         sentNotesRepository.dismissNote(noteId = noteId)
-                        audioInterface.speak(textToSpeak = dismissedText)
                     },
-                    onDisplayedNote = {
-                        audioInterface.speak(textToSpeak = displayedText)
-                    }
                 )
             }
         }
@@ -85,21 +70,8 @@ internal class GlassesMainActivity : ComponentActivity() {
 private fun NoteList(
     notes: List<Note>,
     onDismissNote: (String) -> Unit,
-    onDisplayedNote: () -> Unit
 ) {
-    val listState = rememberGlimmerLazyListState()
-    var previousSize by remember { mutableIntStateOf(value = 0) }
-
-    LaunchedEffect(key1 = notes) {
-        if (notes.isNotEmpty() && notes.size > previousSize) {
-            listState.scrollToItem(index = 0)
-            onDisplayedNote()
-        }
-        previousSize = notes.size
-    }
-
     GlimmerLazyColumn(
-        state = listState,
         title = { TitleChip { Text(text = stringResource(id = R.string.app_name)) } }
     ) {
         items(items = notes.reversed()) { note ->
@@ -154,7 +126,6 @@ private fun NoteListPreview() {
                 )
             ),
             onDismissNote = {},
-            onDisplayedNote = {}
         )
     }
 }

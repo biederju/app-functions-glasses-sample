@@ -1,6 +1,6 @@
-package de.julianbiedermann.app_functions_glasses_sample.repositories.sentnotes
+package de.julianbiedermann.app_functions_glasses_sample.domain.sentnotes
 
-import de.julianbiedermann.app_functions_glasses_sample.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
 import kotlinx.coroutines.flow.Flow
 
 internal interface SentNotesRepository {

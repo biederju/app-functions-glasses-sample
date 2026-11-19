@@ -1,4 +1,4 @@
-package de.julianbiedermann.app_functions_glasses_sample.models
+package de.julianbiedermann.app_functions_glasses_sample.domain.models
 
 import kotlinx.serialization.Serializable
 

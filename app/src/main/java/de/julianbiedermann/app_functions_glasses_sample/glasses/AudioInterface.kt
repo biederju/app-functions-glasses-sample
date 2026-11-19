@@ -2,9 +2,9 @@ package de.julianbiedermann.app_functions_glasses_sample.glasses
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import timber.log.Timber
 
 internal class AudioInterface(
     private val context: Context,
@@ -17,7 +17,7 @@ internal class AudioInterface(
             if (status == TextToSpeech.SUCCESS) {
                 speak(initializationMessage)
             } else {
-                Log.e(TAG, "Initialization failed with status: $status")
+                Timber.e("Initialization failed with status: $status")
             }
         }
     }
@@ -34,9 +34,5 @@ internal class AudioInterface(
     override fun onStop(owner: LifecycleOwner) {
         super.onStop(owner)
         tts.shutdown()
-    }
-
-    companion object {
-        private const val TAG = "AudioInterface"
     }
 }

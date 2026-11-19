@@ -19,9 +19,9 @@
        NotesOverviewScreen.kt)
 - [x] 
     9. Dependency version audit (libs.versions.toml)
-- [ ] 
-    10. Dependency bumps → **ALL REVERTED** (kotlin-stdlib 2.4.10 pull blocks all bumps until Kotlin
-        version upgrade)
+- [x] 
+    10. Dependency bumps → **COMPLETED** (Kotlin upgraded to 2.4.21, all AndroidX libs bumped to
+        latest stable including appfunctions 1.0.0-alpha12)
 - [x] 
     11. Verification: `./gradlew assembleDebug` ✅
 - [x] 

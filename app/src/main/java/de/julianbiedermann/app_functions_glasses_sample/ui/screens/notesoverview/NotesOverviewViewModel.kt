@@ -53,6 +53,7 @@ internal class NotesOverviewViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.deleteNote(noteId)
+                sentNotesRepository.dismissNote(noteId)
             } catch (e: Exception) {
                 Timber.e(e, "Error deleting note")
             }

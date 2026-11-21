@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:instructions="This app manages personal notes and can display them on the user's
+    connected display glasses.
+
+    Operational Patterns:
+    - Use 'createNote' to create a new note with a topic and body text, optionally displaying it on connected glasses.
+    - Use 'showLatestNotes' to display the N most recent notes on the glasses.
+    - Use 'searchNotesOnGlasses' to display notes whose title or text contains a given query.
+
+    Constraints:
+    - 'createNote' requires non-blank topic and text parameters.
+    - 'showLatestNotes' and 'searchNotesOnGlasses' require at least one existing note; otherwise no notes are shown."
+    appfn:displayDescription="@string/user_visible_app_function_description" />

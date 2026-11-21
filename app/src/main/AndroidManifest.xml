@@ -15,7 +15,7 @@
             android:resource="@xml/app_metadata" />
 
         <activity
-            android:name=".glasses.GlassesMainActivity"
+            android:name=".ui.GlassesMainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:requiredDisplayCategory="android.hardware.display.category.XR_PROJECTED">
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Appfunctionsglassessample"
             android:windowSoftInputMode="adjustResize">

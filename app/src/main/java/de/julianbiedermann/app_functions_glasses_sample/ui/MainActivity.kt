@@ -1,4 +1,4 @@
-package de.julianbiedermann.app_functions_glasses_sample
+package de.julianbiedermann.app_functions_glasses_sample.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

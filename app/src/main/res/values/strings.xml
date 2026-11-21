@@ -13,7 +13,5 @@
     <string name="delete_note">Delete note</string>
     <string name="send_note">Send note to glasses</string>
     <string name="dismiss_note_card">Dismiss</string>
-    <string name="note_displayed">Note displayed</string>
-    <string name="note_dismissed">Note dismissed</string>
     <string name="user_visible_app_function_description">View and search your notes on the display glasses</string>
 </resources>

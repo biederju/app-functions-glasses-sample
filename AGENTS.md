@@ -1,4 +1,4 @@
-# Agent Instructions
+# Project specifications & rules
 
 ## Project Overview
 
@@ -9,9 +9,10 @@
 - **Core Capabilities / Main Features:**
     - Indicator in the app if glasses are connected or not
     - List all notes in the app (Timestamp, title, text)
-    - Create and delete notes in the app
+    - Create and delete notes in the app (creation also via app function)
     - Show notes on the connected glasses via button press in app
-    - Show recent notes or notes which match a certain query on connected glasses
+    - Show recent notes or notes which match a certain query on connected glasses (also via app
+      function)
 - **Supported App Languages:** English
 
 ## Tech Stack
@@ -93,10 +94,10 @@
 adb -s <device> shell cmd app_function list-app-functions --package de.julianbiedermann.app_functions_glasses_sample
 
 # Create a new note (optionally showOnGlasses: true to project immediately)
-adb -s <device> shell 'cmd app_function execute-app-function \
+adb -s <device> shell cmd app_function execute-app-function \
   --package de.julianbiedermann.app_functions_glasses_sample \
   --function "de.julianbiedermann.app_functions_glasses_sample.appfunctions.NotesGlassesAppFunctionService#createNote" \
-  --parameters "{\"topic\": \"Shopping\", \"text\": \"Buy milk and bread\", \"showOnGlasses\": true}"'
+  --parameters "{\"topic\": \"Shopping\", \"text\": \"Buy milk and bread\", \"showOnGlasses\": true}"
 
 # Show the 3 latest notes (omit count for default)
 adb -s <device> shell cmd app_function execute-app-function \

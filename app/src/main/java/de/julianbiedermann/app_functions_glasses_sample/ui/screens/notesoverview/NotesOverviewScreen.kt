@@ -47,8 +47,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import de.julianbiedermann.app_functions_glasses_sample.R
-import de.julianbiedermann.app_functions_glasses_sample.glasses.GlassesMainActivity
 import de.julianbiedermann.app_functions_glasses_sample.domain.models.Note
+import de.julianbiedermann.app_functions_glasses_sample.ui.GlassesMainActivity
 import timber.log.Timber
 import java.text.SimpleDateFormat
 
@@ -66,7 +66,7 @@ internal fun NotesOverviewScreen(
         scope.coroutineContext
     ).collectAsStateWithLifecycle(initialValue = false)
 
-    NotesOverviewContent(
+    Content(
         uiState = uiState,
         onAddNote = viewModel::addNote,
         onDeleteNote = viewModel::deleteNote,
@@ -90,7 +90,7 @@ internal fun NotesOverviewScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun NotesOverviewContent(
+private fun Content(
     uiState: NotesOverviewUiState,
     onAddNote: (String, String) -> Unit,
     onDeleteNote: (String) -> Unit,
@@ -98,7 +98,7 @@ internal fun NotesOverviewContent(
     snackbarHostState: SnackbarHostState,
     isConnected: Boolean
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(value = false) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -134,7 +134,7 @@ internal fun NotesOverviewContent(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
+                        .padding(all = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -173,7 +173,7 @@ private fun NotesList(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(all = 16.dp)
     ) {
         items(notes, key = { it.id }) { note ->
             NoteItem(
@@ -188,19 +188,6 @@ private fun NotesList(
 
 @Composable
 private fun NoteItem(
-    note: Note,
-    onDeleteNote: (String) -> Unit,
-    onSendNote: (Note) -> Unit
-) {
-    NoteItemForeground(
-        note = note,
-        onDeleteNote = onDeleteNote,
-        onSendNote = onSendNote
-    )
-}
-
-@Composable
-private fun NoteItemForeground(
     note: Note,
     onDeleteNote: (String) -> Unit,
     onSendNote: (Note) -> Unit
@@ -260,8 +247,8 @@ private fun AddNoteDialog(
     onDismiss: () -> Unit,
     onSave: (String, String) -> Unit
 ) {
-    var topic by remember { mutableStateOf("") }
-    var text by remember { mutableStateOf("") }
+    var topic by remember { mutableStateOf(value = "") }
+    var text by remember { mutableStateOf(value = "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -305,9 +292,9 @@ private fun AddNoteDialog(
 
 @PreviewLightDark
 @Composable
-private fun NotesOverviewContentPreview() {
+private fun ContentPreview() {
     MaterialTheme {
-        NotesOverviewContent(
+        Content(
             uiState = NotesOverviewUiState(
                 notes = listOf(
                     Note(
@@ -335,9 +322,9 @@ private fun NotesOverviewContentPreview() {
 
 @PreviewLightDark
 @Composable
-private fun NotesOverviewContentEmptyPreview() {
+private fun ContentEmptyPreview() {
     MaterialTheme {
-        NotesOverviewContent(
+        Content(
             uiState = NotesOverviewUiState(notes = emptyList()),
             onAddNote = { _, _ -> },
             onDeleteNote = { },
